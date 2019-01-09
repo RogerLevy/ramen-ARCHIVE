@@ -60,11 +60,12 @@ redef off  \ from here on fields only defined if not previously defined
 : gild
     %object sizeof to baseline     
     only forth definitions
-    s" marker (empty)" evaluate 
+    s" marker (empty)" evaluate
+    ." [Gild] "
 ;
 
 create ldr 64 allot
-: rld  ldr count included ;
+: rld  ." [Reload] " ldr count included ;
 : ld   bl parse s" .f" strjoin 2dup 2>r ['] included catch 2r> ldr place throw ;
 
 gild
