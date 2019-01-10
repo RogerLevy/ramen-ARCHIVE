@@ -88,7 +88,7 @@ only forth definitions also tweening
 : overshoot-func  >r dup dup r@ 1 + * r> - * * * + ;
 :xt OVERSHOOT     1.70158 overshoot-func ;
 
-: ease  ( adr start end ease-xt in/out-xt - )
+: tween  ( adr start end ease-xt in/out-xt - )
     { *tween } ;
 
 : +tweens  ( - )
