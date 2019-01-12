@@ -65,20 +65,15 @@ fixed
 
 \ Text; uses Ramen font assets
 variable fnt  default-font fnt !
-variable lmargin
-: chrw    >fnt z" A" al_get_text_width 1p ;
-: chrh    >fnt al_get_font_line_height 1p ;
-: strw    zstring fnt @ >fnt swap al_get_text_width 1p ;
-: strwh   strw fnt @ chrh ;
-: fontw   fnt @ chrw ;
-: fonth   fnt @ chrh ;
+: stringw    ( adr c - n ) zstring fnt @ >fnt swap al_get_text_width 1p ;
+: stringwh   ( adr c - w h ) stringw fnt @ chrh ;
 : (print) ( str count alignment - )
     -rot  zstring >r  >r  fnt @ >fnt fore 4@ destxy 2af r> r> al_draw_text ;
-: print   ALLEGRO_ALIGN_LEFT (print)  ;
-: printr  ALLEGRO_ALIGN_RIGHT (print) ;
-: printc  ALLEGRO_ALIGN_CENTER (print) ;
-: print+  2dup print strw 0 +at ;
-: newline lmargin @ destxy nip fonth + at ;
+: print   ( str c - ) ALLEGRO_ALIGN_LEFT (print)  ;
+: printr  ( str c - ) ALLEGRO_ALIGN_RIGHT (print) ;
+: printc  ( str c - ) ALLEGRO_ALIGN_CENTER (print) ;
+: print+  ( str c - ) 2dup print stringw 0 +at ;
+: font>   ( font - ) r> fnt @ >r swap fnt ! call r> fnt ! ;
 
 \ Primitives
 1e fnegate 1sf constant hairline

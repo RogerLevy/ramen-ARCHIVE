@@ -47,7 +47,7 @@ variable output   \ output bitmap
 
 \ --------------------------------------------------------------------------------------------------
 \ low-level stuff
-consolas chrw constant fw
+consolas char A chrw constant fw
 consolas chrh constant fh
 : cols  fw * ;
 : rows  fh * ;
@@ -229,7 +229,7 @@ create ide-personality
         get-xy 2>r
             at@ cursor xy!  scrolling off
             ?.errs  .s2 
-            0 peny @ fonth + at
+            0 peny @ fnt @ chrh + at
             repl @ if .cmdbuf then
             scrolling on
         2r> at-xy

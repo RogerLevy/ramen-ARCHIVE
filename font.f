@@ -13,3 +13,7 @@ defasset font
 
 : font:  ( path c size flags - <name> )
     create  font sizeof allotment  init-font ;
+
+create (chr)  0 c, 0 c,
+: chrw    ( font chr - n ) (chr) c!  >fnt (chr) al_get_text_width 1p ;
+: chrh    ( font - n ) >fnt al_get_font_line_height 1p ;
