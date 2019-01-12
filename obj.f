@@ -103,21 +103,39 @@ objlist stage  \ default object list
 
 \ Roles
 \ Note that role vars are global and not tied to any specific role.
+\ also, note that DERIVE defaults all actions to call the BASIS's current definition
+\ indirectly, so it can be changed anytime.
 var role <adr
 basis defaults 's role !
-: ?update  ( - <name> )  >in @  defined if  >body lastrole !  drop r> drop exit then  drop >in ! ; 
-: defrole  ( - <name> ) ?update  create  here lastrole !  basis /roledef move, ;
+: ?update  ( - <name> )  >in @  defined if  >body lastrole !  drop r> drop exit then  drop >in ! ;
+
 : role@  ( - role ) role @ dup 0= abort" Error: Role is null." ;
-: create-rolefield  ( size - <name> ) %role swap create-field $76543210 , ;
+: create-rolefield  ( size - <name> ) %role swap create-field $76543210 , 0 , ;
 : rolefield  ( size - <name> ) ?unique create-rolefield  does> field.offset @ role@ + ;
 : rolevar  ( - <name> ) 0 ?unique drop  cell create-rolefield  does> field.offset @ role@ + ;
+: is-action?  %field @ + cell+ @ ;
+: ?execute  dup if execute ;then drop ;
 : action   ( - <name> ) ( ??? - ??? )
-    0 ?unique drop  cell create-rolefield <adr
-    does> field.offset @ role@ + @ execute ;
+    0 ?unique drop  cell create-rolefield  true here cell- ! <adr
+    does> field.offset @ role@ + @ ?execute ;
 : :to   ( roledef - <name> ... )  ' >body field.offset @ + :noname swap ! ;
 : +exec  + @ execute ;
 : ->  ( roledef - <action> )
     ' >body field.offset @ postpone literal postpone +exec ; immediate
+
+:slang .name    body> >name count type space ;
+:slang relate
+    here locals| child |
+    basis /roledef move,
+    ['] is-action? %role some>
+        field.offset @ 
+        :noname 
+        dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile bridge
+        child rot + !  \ assign our "bridge" to the corresponding action
+;
+: defrole  ( - <name> ) ?update  create  here lastrole !  relate ;
+
+
 
 \ Inspection
 : o.   ( obj - ) dup h. %object .fields ;
