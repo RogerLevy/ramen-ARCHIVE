@@ -128,10 +128,10 @@ basis defaults 's role !
     here locals| child |
     basis /roledef move,
     ['] is-action? %role some>
+        :noname swap
         field.offset @ 
-        :noname 
         dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile bridge
-        child rot + !  \ assign our "bridge" to the corresponding action
+        child + !  \ assign our "bridge" to the corresponding action
 ;
 : defrole  ( - <name> ) ?update  create  here lastrole !  relate ;
 
