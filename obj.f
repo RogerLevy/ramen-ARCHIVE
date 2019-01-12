@@ -89,7 +89,7 @@ create root  object,                    \ parent of all objlists
 : acts  ( objlist ) each> as act ;
 : draw>  ( - <code> ) r> drw ! hidden off ;
 : act>   ( - <code> ) r> beha ! ;
-: away  ( x y obj - ) 's x 2@ 2+ at ;
+: away  ( obj x y - ) rot 's x 2@ 2+ at ;
 : -act  ( - ) act> noop ;
 : objlist  ( - <name> )  create here as object, init me root push ;
 
