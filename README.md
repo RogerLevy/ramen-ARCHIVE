@@ -2,7 +2,15 @@
 
 Ramen is a 2D game engine written in standard Forth.
 
-[Documentation](https://rogerlevy.gitbook.io/ramen/v/docs/)
+This is the package repository, containing only Ramen and none of its dependencies or any examples.  
+
+Currently all documentation pertains to the 1.0 branch.
+
+2.0 is being developed on the Master branch.  The new main distribution repository, containing all dependencies (as submodules) and examples, is at https://github.com/RogerLevy/RamenEngine.
+
+I didn't see any conversion on 1.0/1.x (and probably for good reason) and I don't expect anyone to use it right now , but here is a link to the 1.x documentation anyway: [Documentation](https://rogerlevy.gitbook.io/ramen/v/docs/)
+
+
 
 ## Features
 
