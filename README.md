@@ -19,14 +19,13 @@ I didn't see any conversion on 1.0/1.x (and probably for good reason) and I don'
 * Sprite animation
 * Multiple display list support
 * Interactive commandline console
-* ColorForth-inspired, minimalist code emphasizing flat data design.
 * Fast rectangle collision detection
 * Roundrobin multitasking
 * Graphics primitives such as line, rectangle, ellipse, blit, text, etc.
 * Publish facility
 * Z-sorted rendering
 * Basic sound support
-* Data structure extensions - 2D arrays, stacks, node trees
+* Collections with [Venery](https://github.com/RogerLevy/venery)
 
 ## See Ramen in Action
 
