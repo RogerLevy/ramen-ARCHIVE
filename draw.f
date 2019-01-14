@@ -11,14 +11,13 @@ create fore 1e sf, 1e sf, 1e sf, 1e sf,
         swap  onto call
     2r> at  r> al_set_target_bitmap ;
 : movebmp  ( src sx sy w h )  write-src BLEND>  destxy 2af 0 al_draw_bitmap ;
-: *bmp   ( w h - bmp )  2i al_create_bitmap ;
 : clearbmp  ( r g b a bmp )  onto>  4af al_clear_to_color ;
 : backbuf  display al_get_backbuffer ;
+: backdrop  fore 4@ al_clear_to_color  white  0 0 at ;
 
 \ Predefined Colors; stored in fixed-point so you can modify them with `['] <color> >BODY`
 : 8>p  s>f 255e f/ f>p ;
 : createcolor create rot 8>p , swap 8>p , 8>p , 1 , does> 3@ 3af fore 3! 1 alpha ;
-
 hex
 00 00 00 createcolor black 69 71 75 createcolor dgrey
 9d 9d 9d createcolor grey cc cc cc createcolor lgrey
@@ -36,22 +35,20 @@ bc b3 30 createcolor dyellow ae 3c 27 createcolor lgreen
 da 42 00 createcolor orange
 fixed
 
-: backdrop  fore 4@ al_clear_to_color  white  0 0 at ;
 
 \ Bitmap drawing words
 \  The anchor for rotation and scaling with XBLIT is the center of the passed bitmap.
 
-: fblit  ( bmp flip )
-    over 0= if 2drop ;then
-    >r  destxy 2af  r> al_draw_bitmap ;
-: blit   ( bmp ) 0 fblit ;
+
+: blit  ( bmp )
+    dup 0= if drop ;then  destxy 2af 0 al_draw_bitmap ;
 : tblit  ( bmp )
     dup 0= if drop ;then
     fore 4@  destxy 2af  0 al_draw_tinted_bitmap ;
 : sblit  ( bmp destw desth )
     locals| dh dw |
     ?dup -exit
-    ( bmp )  dup >r  0 0 r> bmpwh 4af  destxy dw dh 4af  0  al_draw_scaled_bitmap ;
+    ( bmp )  dup >r  fore 4@  0 0 r> bmpwh 4af  destxy dw dh 4af  0  al_draw_tinted_scaled_bitmap ;
 : >center  bmpwh 1 >> swap 1 >> swap ;
 : xblit ( bmp scalex scaley angle flip )
     locals| flip ang sy sx bmp |
@@ -72,7 +69,6 @@ variable fnt  default-font fnt !
 : print   ( str c - ) ALLEGRO_ALIGN_LEFT (print)  ;
 : printr  ( str c - ) ALLEGRO_ALIGN_RIGHT (print) ;
 : printc  ( str c - ) ALLEGRO_ALIGN_CENTER (print) ;
-: print+  ( str c - ) 2dup print stringw 0 +at ;
 : font>   ( font - ) r> fnt @ >r swap fnt ! call r> fnt ! ;
 
 \ Primitives
@@ -80,8 +76,6 @@ variable fnt  default-font fnt !
 : pofs   0.625 globalscale / dup 2+ ;
 : -pofs  -1 globalscale / dup 2+ ;
 : line   ( dx dy ) destxy pofs  2swap 4af fore 4@ hairline al_draw_line ;
-: +line  ( ox oy ) destxy pofs 2+ line ;
-: line+  ( ox oy ) 2dup +line +at ;
 : pixel  destxy pofs  2af  fore 4@  al_draw_pixel ;
 : rect   ( w h )  -pofs destxy pofs  2swap 2over 2+ 4af fore 4@ hairline al_draw_rectangle ;
 : rectf  ( w h )  destxy 2swap 2over 2+ 4af fore 4@ al_draw_filled_rectangle ;

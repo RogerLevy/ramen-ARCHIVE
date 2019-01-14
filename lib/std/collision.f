@@ -7,6 +7,8 @@ depend ramen/lib/array2d.f
 0 value floor?
 0 value ceiling?
 
+[undefined] tstep [if] create tstep 16 , 16 , [then]
+
 var mbw  var mbh   \ object collision box width,height
 defer on-tilemap-collide  ' drop is on-tilemap-collide  ( tilecell - )
 defer tileprops@   :noname drop 0 ; is tileprops@  ( tilecell - bitmask )  

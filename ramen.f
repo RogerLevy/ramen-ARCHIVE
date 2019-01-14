@@ -8,3 +8,5 @@
         include ramen/ide/ide.f   \ gilded
     [then]
 [then]
+
+cr .( Loaded Ramen. ) \ "

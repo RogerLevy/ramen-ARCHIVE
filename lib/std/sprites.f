@@ -44,7 +44,7 @@ defaults >{
     ang @ >rad 1af  flip
         al_draw_tinted_scaled_rotated_bitmap_region ;
 
-( FRame stuff )
+( Frame stuff )
 : framexywh  ( n rgntbl - srcx srcy w h )
     swap /region * + 4@ ;
 

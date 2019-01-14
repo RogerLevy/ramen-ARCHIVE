@@ -117,12 +117,7 @@ create tstep 16 , 16 ,
         scrollx 2@  tstep 2@ scrollofs  tilebuf loc  tilebuf pitch@  50 50 isotilemap ;
 
 \ Tilemap collision
-include ramen/lib/tiled/collision.f
+include ramen/lib/std/collision.f
 
 : onhitmap>  ( - <code> )  ( tilecell - )
-    r> onhitmap ! ;  
-
-\ : ?'drop  ?dup ?exit  ['] drop ;
-\ : collide-objects-map  ( objlist tilesize - )
-\     locals| tilesize |
-\     each>   onhitmap @ ?'drop is map-collide  tilesize  collide-tilemap ;
+    r> code> onhitmap ! ;  

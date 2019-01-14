@@ -9,16 +9,14 @@
 : 2.  swap . . ;
 : 3.  rot . 2. ;
 : 2?  swap ? ? ;
-: v+  swap 2@ rot 2+! ;
+: vadd  swap 2@ rot 2+! ;
 : x@  @ ;
 : y@  cell+ @ ;
 : x!  ! ;
 : y!  cell+ ! ;
 : x+!  +! ;
 : y+!  cell+ +! ;
-: v*  >r  2@ r@ 2*  r> 2! ;
-: v/  >r  2@ r@ 2/  r> 2! ;
-: vmove  swap 2@ rot 2! ;
+: vcopy  swap 2@ rot 2! ;
 : vclamp  ( lowx lowy highx highy vec - )  >r  2@ 2min 2max r> 2! ;
 : 0v  0 0 rot 2! ;
 : 1v  1 1 rot 2! ;

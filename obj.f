@@ -78,7 +78,6 @@ create root  object,                    \ parent of all objlists
 :noname  >{ en @ $fffffffe <> if me pool push else me ?remove then } ; is free-node
 : dismiss ( - ) marked on ;
 : dynamic?  ( - flag ) en @ #1 and ;
-: static?  ( - flag ) en @ #1 and 0= ;
 
 \ making stuff move and displaying them
 : ?call  ( adr - ) ?dup -exit call ;
@@ -95,7 +94,7 @@ create root  object,                    \ parent of all objlists
 
 \ stage
 objlist stage  \ default object list
-:slang /pool   pool %node venery-sizeof erase  pool /node ;
+: /pool   pool %node venery-sizeof erase  pool /node ;
 : /stage  stage vacate  /pool  0 nextid ! ;
 
 \ static objects
@@ -130,7 +129,7 @@ basis defaults 's role !
     ['] is-action? %role some>
         :noname swap
         field.offset @ 
-        dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile bridge
+        dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile "bridge"
         child + !  \ assign our "bridge" to the corresponding action
 ;
 : defrole  ( - <name> ) ?update  create  here lastrole !  relate ;

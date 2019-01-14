@@ -34,7 +34,7 @@ include ramen/font.f    cr .( Loaded font module... ) \ "
 include ramen/buffer.f  cr .( Loaded buffer module... ) \ "
 include ramen/sample.f  cr .( Loaded sample module... ) \ "
 
-\ Higher level facilities
+\ Higher level stuff
 include ramen/obj.f     cr .( Loaded objects module... ) \ "
 include ramen/publish.f cr .( Loaded publish module... ) \ "
 include ramen/draw.f    cr .( Loaded draw module... ) \ "
@@ -43,9 +43,7 @@ redef off  \ from here on fields only defined if not previously defined
 
 %object sizeof value baseline
 
-[undefined] LIGHTWEIGHT [if]
-    include ramen/default.f
-[THEN]
+include ramen/default.f
 
 : empty
     ." [Empty]" cr

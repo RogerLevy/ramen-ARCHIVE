@@ -14,3 +14,5 @@ depend ramen/lib/tiled/tiled.f     cr .( Loaded Tiled support. ) \ "
 : think  stage acts stage multi ;
 : physics  stage each> as vx 2@ x 2+! ;
 : default-step  step> think physics stage sweep ;
+
+cr .( Finished loading Standard Pack. ) \ "
