@@ -12,6 +12,8 @@ depend ramen/lib/min/a.f           cr .( Loaded A register module. ) \ "
 depend ramen/lib/min/sprites.f     cr .( Loaded sprites module. ) \ "
 depend ramen/lib/min/tile.f        cr .( Loaded tile module. ) \ "
 depend ramen/lib/std/collision.f   cr .( Loaded tilemap collision module. ) \ "
+depend ramen/lib/array2d.f
+depend ramen/lib/buffer2d.f
 
 : think  stage acts stage multi ;
 : physics  stage each> as vx 2@ x 2+! ;
