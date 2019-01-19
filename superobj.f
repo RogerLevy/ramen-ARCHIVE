@@ -185,8 +185,10 @@ create mestk  0 , 16 cells allot
     /template
 ;
 
-: /object  ( class - )
-    dup template me rot sizeof move
+: /object  ( class object - )
+    >r 
+    dup template r@ rot sizeof move
+    r> as 
     me >class class.constructor @ execute
     ( initialize embedded objects )
 \    me >class >fields each>
@@ -199,7 +201,7 @@ create mestk  0 , 16 cells allot
 \        then
 ;
 
-: static  here as  dup sizeof allot  /object ;
+: static  dup sizeof allotment /object ;
 
 : dynamic  ( class - object )
 \    dup class.useHeap @ if
@@ -211,7 +213,7 @@ create mestk  0 , 16 cells allot
 \            dup sizeof allotment 
 \        then
 \    then
-    as /object
+    /object
 ;
 
 : destroy  ( object - )
@@ -278,6 +280,8 @@ end-class
 : peek  ( object - )
     dup >class  dup node.first @ field.offset @ u+  (peek)  drop ;
 
+
+: .me   me peek ;
 
 ( TEST )
 
