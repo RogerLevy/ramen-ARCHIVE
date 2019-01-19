@@ -105,7 +105,7 @@ create mestk  0 , 16 cells allot
 : add-field  ( field class - )  push ;
 
 : does-superfield
-    immediate does>  @ ?literal  s" offsetTable + @ me +" evaluate
+    does>  @ offsetTable + @ me +
 ;
 
 : 's
