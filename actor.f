@@ -2,7 +2,9 @@
 
 variable lastRole \ used by map loaders (when loading objects scripts)
 variable nextid
-struct %role
+<object> class <role>
+end-class
+
 <node> class <actor>
     var id 
     var en <hex
@@ -13,7 +15,7 @@ struct %role
     var marked <flag \ for deletion
     var role <adr
 end-class
-create basis /roledef /allot  \ default rolevar and action values for all newly created roles
+create basis <role> static \ default rolevar and action values for all newly created roles
 variable redef \ for rolevars and actions
 
 <actor> template as
@@ -69,29 +71,14 @@ objlist stage  \ default object list
     >in @
     defined if  >body to lastRole  drop r> drop  ;then  drop
     >in ! ;
-: >magic  ( adr - n ) %field old-sizeof + @ ;
-: ?unique  ( size - size | <cancel caller> )
-    redef @ ?exit
-    >in @
-        bl word find  if
-            >body dup >r >magic $76543210 =  if
-                r> to lastfield
-                r> drop  ( value of >IN ) drop  ( size ) drop  exit
-            else
-                r> ( body ) drop
-            then
-        else
-            ( addr ) drop
-        then
-    >in ! ;
 : role@  ( - role ) role @ dup 0= abort" Error: Role is null." ;
-: create-rolefield  ( size - <name> ) %role swap create-field $76543210 , 0 , ;
-: rolefield  ( size - <name> ) ?unique create-rolefield  does> field.offset @ role@ + ;
-: rolevar  ( - <name> ) 0 ?unique drop  cell create-rolefield  does> field.offset @ role@ + ;
-: is-action?  %field old-sizeof + cell+ @ ;
+: create-rolefield  ( size - <name> )  <role> define-fields  create-superfield 0 , ;
+: rolefield  ( size - <name> ) create-rolefield  does> field.offset @ role@ + ;
+: rolevar  ( - <name> )  cell rolefield ;
+: is-action?  %field old-sizeof + @ ;
 : ?execute  dup if execute ;then drop ;
 : action   ( - <name> ) ( ??? - ??? )
-    0 ?unique drop  cell create-rolefield  true here cell- ! <adr
+    rolevar <adr true here cell- ! 
     does> field.offset @ role@ + @ ?execute ;
 : :to   ( roledef - <name> ... )  ' >body field.offset @ + :noname swap ! ;
 : +exec  + @ execute ;
@@ -101,7 +88,7 @@ objlist stage  \ default object list
 : role,
     here locals| child |
     basis /roledef move,
-    ['] is-action? %role some>
+    ['] is-action? <role> some>
         :noname swap
         field.offset @ 
         dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile "bridge"
@@ -110,5 +97,5 @@ objlist stage  \ default object list
 : defrole  ( - <name> ) ?update  create  here to lastRole  role, ;
 
 \ Inspection
-: .role  ( obj - )  's role @ ?dup if %role .fields else ." No role" then ;
-: .objlist  ( objlist - )  dup length . each> >{  cr ." ID: " id ?  ."  X/Y: " x 2?  } ;
+: .role  ( obj - )  's role @ ?dup if peek else ." No role" then ;
+: .objlist  ( objlist - )  dup length 1i i. each> >{  cr ." ID: " id ?  ."  X/Y: " x 2?  } ;
