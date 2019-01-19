@@ -11,7 +11,9 @@ defer tmxobj   ( object-nnn role - )
 defer tmximage ( object-nnn gid - )
 defer tmxrect  ( object-nnn w h - )
 
-var gid
+extend-class <actor>
+    var gid
+end-class
 rolevar recipe
 
 include ramen/lib/tiled/tmx.f

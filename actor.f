@@ -4,10 +4,12 @@ variable lastrole \ used by map loaders (when loading objects scripts)
 variable nextid
 struct %role
 <node> class <actor>
-    var id  \ don't move this (?)
-    var en <hex  var hidden <flag  
+    var id 
+    var en <hex
+    var hidden <flag  
     var x  var y  var vx  var vy
-    var drw <adr  var beha <adr
+    var drw <adr
+    var beha <adr
     var marked <flag \ for deletion
     var role <adr
 end-class

@@ -10,10 +10,11 @@ create tiles #MAXTILES array,
 0 value tba  \ tileset base address
 [undefined] tilebuf [if] 1024 1024 buffer2d: tilebuf [then]
 
-\ tilemap vars
-var scrollx  var scrolly  \ used to define starting column and row!
-var w  var h              \ width & height in pixels
-var tbi                   \ tile base index
+<actor> class <tilemap>
+    var scrollx  var scrolly  \ used to define starting column and row!
+    var w  var h              \ width & height in pixels
+    var tbi                   \ tile base index
+end-class
 
 \ general vars
 var onhitmap              \ XT ( tile - )

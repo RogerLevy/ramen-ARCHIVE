@@ -2,7 +2,9 @@
 
 depend ramen/lib/rsort.f
 
-var zdepth
+extend-class <actor>
+    var zdepth
+end-class
 
 :slang drawem  ( addr cells - )  cells bounds do  i @ as  draw  cell +loop ;
 :slang enqueue  ( objlist - )  each> as  hidden @ ?exit  me , ;

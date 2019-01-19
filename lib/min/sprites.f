@@ -20,8 +20,8 @@ cell constant /frame
         \ vflip = $2
         \ index is fixed point
 
-redef on
-    \ Transformation info; will be factored out into Ramen's core eventually
+extend-class <actor>
+    \ Transformation info
     var sx  var sy              \ scale
     var ang                     \ rotation
     var cx  var cy              \ center
@@ -34,7 +34,7 @@ redef on
     var rgntbl <adr \ region table
     var anmspd    \ animation speed (1.0 = normal, 0.5 = half, 2.0 = double ...)
     var anmctr    \ animation counter
-redef off
+end-class
 
 defaults >{
     1 1 sx 2!
