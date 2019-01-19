@@ -69,7 +69,7 @@ objlist stage  \ default object list
     >in @
     defined if  >body to lastRole  drop r> drop  ;then  drop
     >in ! ;
-: >magic  ( adr - n ) %field sizeof + @ ;
+: >magic  ( adr - n ) %field old-sizeof + @ ;
 : ?unique  ( size - size | <cancel caller> )
     redef @ ?exit
     >in @
@@ -88,7 +88,7 @@ objlist stage  \ default object list
 : create-rolefield  ( size - <name> ) %role swap create-field $76543210 , 0 , ;
 : rolefield  ( size - <name> ) ?unique create-rolefield  does> field.offset @ role@ + ;
 : rolevar  ( - <name> ) 0 ?unique drop  cell create-rolefield  does> field.offset @ role@ + ;
-: is-action?  %field sizeof + cell+ @ ;
+: is-action?  %field old-sizeof + cell+ @ ;
 : ?execute  dup if execute ;then drop ;
 : action   ( - <name> ) ( ??? - ??? )
     0 ?unique drop  cell create-rolefield  true here cell- ! <adr
