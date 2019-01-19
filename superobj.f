@@ -42,6 +42,7 @@ also venery
         %class svar class.size           
         %class svar class.wordlist
         %class svar class.template
+        %class svar class.templateSize
         %class svar class.super
         \ %class %node sembed class>pool 
         \ %class svar class.useHeap
@@ -178,12 +179,17 @@ create mestk  0 , 16 cells allot
 ;
 
 : /template
-    cc dup class.template @ 0= if
+    cc class.template @ 0= if
+        cc sizeof allotment cc class.template !
+        cc >super class.template @ cc class.template @ cc >super sizeof move                
+        cc dup class.template @ !  \ set the template's class, v. important
+        cc sizeof cc class.templateSize !  \ support extensions
+    else
+        cc class.template @ 
             cc sizeof allotment cc class.template !
-            >super
-        then class.template @
-        cc class.template @ cc >super sizeof move
-    cc dup class.template @ !  \ set the template's class, v. important
+            cc class.template @ cc class.templateSize @ move
+        cc sizeof cc class.templateSize !
+    then 
 ;
 
 : end-class
