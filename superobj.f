@@ -1,19 +1,30 @@
 ( Super objects! )
 \ An extension for high-level programming.
-\ [ ] - Templates
-\ [ ] - Three kinds of allocation - static, pool-based, and heap
-\ [ ] - Constructors and destructors
+\ [x] - Templates
+\ [x] - Two kinds of allocation - dictionary (static) and heap (dynamic)
+\ [x] - Smart fields - different classes' fields can reuse names and you can check for field ownership on a class basis.
+\ [x] - Private words
+\ [ ] - Constructors and destructors, plus the ability to call superclass constructors/destructors? 
 \ [ ] - Automatic construction/destruction of embedded objects, such as collections
-\ [ ] - Smart fields - different classes' fields can reuse names and you can check for field ownership on a class basis.
-\ [ ] - Private words
 \ [ ] - Inspection
-\ [ ] - Inheritance
-\ [ ] - NO methods/polymorphism!  (To be implemented by the user)
+\ [ ] - Inheritance 
+
+\ TODO:
+\ [ ] - CLASS: copy all field instances and add them, plus the offset table
+\ [ ] - Make venery use this so we can subclass from collections
+\ [x] - Initialize offset tables with high offsets intended to cause segfaults
+\ [ ] - >{ { }
+\ [ ] - DESTROY: call destructor
+\ [ ] - /OBJECT: call constructor
+\ [ ] - Pool allocation (problem: objects aren't all nodes!!! what do?? maybe just custom build for actors)
 
 0 value me
 0 value offsetTable
 0 value cc \ current Class
 0 value nextOffsetSlot \ next offset in offset table
+0 value lastFieldInstance \ last field instance
+
+: ?literal  state @ if postpone literal then ;
 
 also venery
 
@@ -35,63 +46,76 @@ also venery
         %field svar field.inspector
         \ constructor
         \ destructor
-    
+
+    : old-sizeof  sizeof ;    
 
 previous
 
-: >template  class.template @ ;
+( class utils )
+: template  class.template @ ;
 : >super  class.super @ ;
 : >wordlist  class.wordlist @ ;
 : sizeof  class.size @ ;
+: >offsetTable  [ 0 class>offsetTable ]# ?literal s" +" evaluate ; immediate
 
+
+( object utils )
 : >class s" @" evaluate ; immediate
 : size  >class sizeof ;
+: super  me >class >super ;
 
+( search order )
 : converse  ( class - )
-    dup 
-    begin >super dup while recurse repeat drop
+    dup >super dup if recurse else drop then
     >wordlist +order
 ;
 : -converse  ( class - )
-    dup 
-    begin >super dup while recurse repeat drop
+    dup >super dup if recurse else drop then
     >wordlist -order
 ;
 : ?converse
-    state @ 0= if me >class converse then
+    me -exit state @ 0= if me >class converse then
 ;
 : ?-converse
-    state @ 0= if me >class -converse then
+    me -exit state @ 0= if me >class -converse then
 ;
 
-: >offsetTable  s" >class class>offsetTable" evaluate ; immediate
-: as  ?-converse  dup to me  >offsetTable to offsetTable  ?converse ;  \ TODO: optimize
-: >field  ( ofs - adr )  s" offsetTable + @ me +" evaluate ; immediate
+: as  ( ?-converse )  dup to me  >class >offsetTable to offsetTable  ( ?converse ) ;
 
 : add-field  ( field class - )  push ;
 
 : does-superfield
-    immediate does> @ ?literal " >field" evaluate 
+    immediate does> @ ?literal s" offsetTable + @ me +" evaluate 
 ;
 
+: 's
+    s" dup >class >offsetTable" evaluate ' >body @ ?literal s" + @ +" evaluate
+; immediate
+
+: field-exists  >in @ defined if >body cell+ @ $12345678 = else drop 0 then swap >in ! ;
+
 : create-superfield  ( size - <name> )
-    >in @ exists not if
+    field-exists not if
         ( not defined; define the superfield word )
-        create nextOffsetSlot , does-superfield
+        >in @ create >in !
+        nextOffsetSlot , $12345678 , does-superfield
         cell +to nextOffsetSlot
     then
-    >in !
-    
-    
-    ( create the field instance )
-    %field sizeof allotment >r
-        r@ /node
-        r@ cc add-field
-        ( size ) +to nextOffset
-    r> drop
     
     \ ?already  \ can only define once per class
-    >in !  
+    
+    cc sizeof
+        cc class>offsetTable
+            ' >body @ ( the offset slot ) + !
+        
+    ( size ) cc class.size +!
+    
+    ( create the field instance, for great justice )
+    %field old-sizeof allotment >r
+        r@ to lastFieldInstance
+        r@ /node
+        r@ cc add-field
+    r> drop
 ;
 
 : /cc
@@ -101,63 +125,99 @@ previous
 ;
 
 : class  ( superclass - <name> )
-    create %class sizeof allotment to cc
+    create %class old-sizeof allotment to cc
     /cc
     cc class.super !
-    
+    cc >super sizeof cc class.size !
+    cc class>offsetTable  128  $80000000  ifill
     \ TODO: need to copy all field instances and add them, plus the offset table
-    cc >super class>offsetTable 
+    \ cc >super class>offsetTable 
 ;
 
 : /template
     cc sizeof allotment cc class.template !
     cc >super class.template @ cc class.template @ cc >super sizeof move
+    cc dup class.template @ !  \ set the template's class, v. important
 ;
 
 : end-class
     /template
 ;
 
-: init  ( class object - object )
+: /object  ( class - )
+    dup template me rot sizeof move
 ;
 
-: static  dup sizeof allotment init ;
+: static  here as  dup sizeof allot  /object ;
 
 : dynamic  ( class - object )
-    dup class.useHeap @ if
-        sizeof allocate throw
-    else
-        dup class>pool length if
-            dup class>pool pop
-        else
-            dup sizeof allotment 
-        then
-        init
-    then
+\    dup class.useHeap @ if
+        dup sizeof allocate throw
+\    else
+\        dup class>pool length if
+\            dup class>pool pop
+\        else
+\            dup sizeof allotment 
+\        then
+\    then
+    as /object
 ;
 
-: destroy
-    \ destructor
-    dup >class class.useHeap @ if
+: destroy  ( object - )
+\    dup >class class.useHeap @ if
         free throw
-    else
-        dup >class class>pool push
-    then
+\    else
+\        dup >class class>pool .s push
+\    then
 ;
 
 
-create <object> %class /allot  <object> to cc  /cc
+create object-template 0 ,
+
+create <object> %class old-sizeof /allot  <object> to cc  /cc
+    cell cc class.size !  \ the class field
+    object-template cc class.template !
 
 <object> >wordlist +order definitions
-    : ; postpone ; -converse ; immediate
+    : ; postpone ; -converse set-current ; immediate
 previous definitions
 
 
-: :pub ( class - <name> <code> ; )
-    dup converse :
+: knowing  ( class - current class ) get-current swap dup converse ;
+
+: :pub ( class - <name> <code> current class ; )
+    knowing :
 ;
 
 : :: ( class - <name> <code> ; )
-    :pub definitions
+    knowing definitions : 
 ;
 
+
+
+( TEST )
+
+: var  cell create-superfield ;
+
+<object> class <actor>
+    var en
+    var flags
+    var x
+    var y
+end-class
+
+<object> class <particle>
+    var x
+    var y
+end-class
+
+200 200 <actor> template 's x 2!
+100 100 <particle> template 's x 2!
+
+create ako <actor> static
+create bko <particle> static
+
+<actor> :: test ." hi" ;
+<actor> :pub ok test ;
+
+<actor> dynamic  me destroy
