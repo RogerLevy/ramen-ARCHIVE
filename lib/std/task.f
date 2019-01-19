@@ -8,12 +8,12 @@
 \  - Console output 
 \  (See below for a workaround)
 
-redef on
+extend-class <actor>
     var sp <adr  30 cells field ds <skip
     var rp <adr  60 cells field rs <skip
-redef off
+end-class
 
-create main object,  \ proxy for the Forth data and return stacks
+create main stage <actor> actor \ proxy for the Forth data and return stacks
 
 : nxten  ( - )  begin  me node.next @ as  me -exit  en @ until ;
 : pause  ( - ) 

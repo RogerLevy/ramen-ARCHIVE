@@ -280,6 +280,9 @@ end-class
 : peek  ( object - )
     dup >class  dup node.first @ field.offset @ u+  (peek)  drop ;
 
+: extend-class ( - <name> )
+    ' >body to cc
+;
 
 : .me   me peek ;
 

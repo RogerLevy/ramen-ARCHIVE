@@ -18,6 +18,9 @@ variable redef \ for rolevars and actions
     en on
     basis role !
 
+: var  cell create-superfield ;
+: field  create-superfield ;
+
 \ create pool  <node> static            \ where we cache free objects
 create root  <node> static            \ parent of all objlists
 
@@ -54,7 +57,7 @@ objlist stage  \ default object list
 : /stage  stage vacate  ( /pool )  0 nextid ! ;
 
 \ static actors
-: actor   ( class - ) static  me stage push  init $fffffffe en ! ;
+: actor   ( parent class - ) static  me swap push  init  $fffffffe en ! ;
 
 \ Roles
 \ Note that role vars are global and not tied to any specific role.

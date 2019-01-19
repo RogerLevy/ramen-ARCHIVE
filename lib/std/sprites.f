@@ -14,7 +14,7 @@ cell constant /frame
         \ vflip = $2
         \ index is fixed point
 
-redef on
+extend-class <actor>
     \ Transformation info; will be factored out into Ramen's core eventually
     var sx  var sy              \ scale
     var ang                     \ rotation
@@ -28,13 +28,12 @@ redef on
     var rgntbl <adr \ region table
     var anmspd    \ animation speed (1.0 = normal, 0.5 = half, 2.0 = double ...)
     var anmctr    \ animation counter
-redef off
+end-class
 
-defaults >{
+<actor> template as
     1 1 sx 2!
     1 1 1 1 tint 4!
     1 anmspd !
-}
 
 ( Drawing )
 : bsprite ( srcx srcy w h flip )
