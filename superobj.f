@@ -176,8 +176,11 @@ create mestk  0 , 16 cells allot
 ;
 
 : /template
-    cc sizeof allotment cc class.template !
-    cc >super class.template @ cc class.template @ cc >super sizeof move
+    cc dup class.template @ 0= if
+            cc sizeof allotment cc class.template !
+            >super
+        then class.template @
+        cc class.template @ cc >super sizeof move
     cc dup class.template @ !  \ set the template's class, v. important
 ;
 

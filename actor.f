@@ -29,8 +29,8 @@ create root  <node> static            \ parent of all objlists
 : >parent  ( node - node|0 ) node.parent @ ;
 : !id  1 nextid +!  nextid @ id ! ;
 : init  ( - )  !id ;
-: one ( parent class - me=obj ) dynamic  init me swap push  at@ x 2! ;
-: actors  ( parent class n - ) { for 2dup one loop drop drop } ;
+: one ( class parent - me=obj )  swap dynamic  init me swap push  at@ x 2! ;
+: actors  ( class parent n - ) { for 2dup one loop drop drop } ;
 : ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;
 : dismiss ( - ) marked on ;
 : dynamic?  ( - flag ) en @ #1 and ;
@@ -57,7 +57,7 @@ objlist stage  \ default object list
 : /stage  stage vacate  ( /pool )  0 nextid ! ;
 
 \ static actors
-: actor   ( parent class - ) static  me swap push  init  $fffffffe en ! ;
+: actor   ( class parent - )  swap static  me swap push  init  $fffffffe en ! ;
 
 \ Roles
 \ Note that role vars are global and not tied to any specific role.

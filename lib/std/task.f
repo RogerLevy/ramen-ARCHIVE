@@ -13,7 +13,7 @@ extend-class <actor>
     var rp <adr  60 cells field rs <skip
 end-class
 
-create main stage <actor> actor \ proxy for the Forth data and return stacks
+create main <actor> stage actor \ proxy for the Forth data and return stacks
 
 : nxten  ( - )  begin  me node.next @ as  me -exit  en @ until ;
 : pause  ( - ) 
