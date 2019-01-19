@@ -262,6 +262,8 @@ previous definitions
     knowing definitions : 
 ;
 
+: define-fields  to cc ;
+
 ( Venery classes )
 
 <object> class <node>
