@@ -1,6 +1,6 @@
 [defined] roledef-size [if] roledef-size [else] 4 kb [then] constant /roledef
 
-variable lastrole \ used by map loaders (when loading objects scripts)
+variable lastRole \ used by map loaders (when loading objects scripts)
 variable nextid
 struct %role
 <node> class <actor>
@@ -65,7 +65,10 @@ objlist stage  \ default object list
 \ Note that role vars are global and not tied to any specific role.
 \ also, note that DERIVE defaults all actions to call the BASIS's current definition
 \ indirectly, so it can be changed anytime.
-: ?update  ( - <name> )  >in @  defined if  >body lastrole !  drop r> drop exit then  drop >in ! ;
+: ?update  ( - <name> )
+    >in @
+    defined if  >body to lastRole  drop r> drop  ;then  drop
+    >in ! ;
 : >magic  ( adr - n ) %field sizeof + @ ;
 : ?unique  ( size - size | <cancel caller> )
     redef @ ?exit
@@ -95,7 +98,7 @@ objlist stage  \ default object list
 : ->  ( roledef - <action> )
     ' >body field.offset @ postpone literal postpone +exec ; immediate
 
-:slang relate
+: role,
     here locals| child |
     basis /roledef move,
     ['] is-action? %role some>
@@ -104,7 +107,7 @@ objlist stage  \ default object list
         dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile "bridge"
         child + !  \ assign our "bridge" to the corresponding action
 ;
-: defrole  ( - <name> ) ?update  create  here lastrole !  relate ;
+: defrole  ( - <name> ) ?update  create  here to lastRole  role, ;
 
 \ Inspection
 : .role  ( obj - )  's role @ ?dup if %role .fields else ." No role" then ;
