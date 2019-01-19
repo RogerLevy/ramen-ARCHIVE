@@ -31,6 +31,7 @@
 0 value cc \ current Class
 0 value nextOffsetSlot \ next offset in offset table
 0 value (superfield)  \ a temporary variable
+0 value lastClass  \ last defined Class
 
 : ?literal  state @ if postpone literal then ;
 
@@ -168,6 +169,7 @@ create mestk  0 , 16 cells allot
 
 : class  ( superclass - <name> )
     create %class old-sizeof allotment to cc
+    cc to lastClass
     /cc
     cc class.super !
     cc >super sizeof cc class.size !
