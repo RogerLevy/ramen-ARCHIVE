@@ -15,14 +15,14 @@ end-class
 
 create main <actor> static \ proxy for the Forth data and return stacks
 
-: nxten  ( - )  begin  me node.next @ as  me -exit  en @ until ;
+: next-enabled  ( - flag )  begin  me node.next @ dup -exit as   en @ until  true ;
 : pause  ( - ) 
     \ save state
     dup \ ensure TOS is on stack
     sp@ sp !
     rp@ rp !
     \ look for next task.  rp=0 means no task.  end of list = jump to main task and resume that
-    begin  nxten  me if  rp @  else  main dup as  then  until
+    begin  next-enabled if  rp @  else  main dup as  then  until
     \ restore state
     rp @ rp!
     sp @ sp!
