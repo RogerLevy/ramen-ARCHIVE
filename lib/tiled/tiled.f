@@ -69,21 +69,22 @@ also xmling also tmxing
 \ If an object does not have an associated image, this loads a script corresponding
 \ to its Type attribute if it has one.
 
-create $$$ #256 allot
-: uncount  $$$ place $$$ ;
-: (saveorder)  get-order  r> call  >r  set-order  r> ;
-: >script  objpath count s[  +s  s" .f" +s  ]s ;
-: load-script  ( name c - role|0 )
-    locals| c name | 
-    \ see if the role is already defined
-    name c uncount  find  ( xt|a flag ) if  >body exit then   drop  
-    \ load the script if it's in the obj/ folder and return the last defined role 
-    name c >script 
-    cr ." Loading script: " 2dup type
-    2dup file-exists    0= if  2drop 0 exit  then
-        included  lastrole @ ;
+\ create $$$ #256 allot
+\ : uncount  $$$ place $$$ ;
+\ : (saveorder)  get-order  r> call  >r  set-order  r> ;
+\ : >script  objpath count s[  +s  s" .f" +s  ]s ;
+\ : load-script  ( name c - role|0 )
+\     locals| c name | 
+\     \ see if the role is already defined
+\     name c uncount  find  ( xt|a flag ) if  >body exit then   drop  
+\     \ load the script if it's in the obj/ folder and return the last defined role 
+\     name c >script 
+\     cr ." Loading script: " 2dup type
+\     2dup file-exists    0= if  2drop 0 exit  then
+\         included  lastRole ;
 
-: script!  ( role n )  roles [] ! ;
+\ : script!  ( role n )  roles [] ! ;
+
 \ 
 \ : (load-scripts)  tileset ( dom tileset gid )  locals| firstgid |
 \     ( tileset ) eachel> that's tile
@@ -109,7 +110,7 @@ create $$$ #256 allot
     @handlers  eachel> that's object 
         dup xy@ at
         dup rectangle? if
-            dup el?type if  load-script ( nnn role|0 ) ?tmxobj  exit then  
+            \ dup el?type if  load-script ( nnn role|0 ) ?tmxobj  exit then  
             dup wh@ ( nnn w h ) tmxrect
         else
             dup gid@ dup  roles [] @ ?dup if
@@ -127,9 +128,9 @@ create $$$ #256 allot
     bmp ts tilewh@ firstgid maketiles
     dom ['] ?dom-free >code >r
     \ load any scripts (tiles that have a Type property)
-    ts eachel> that's tile  
-        dup el?type if load-script firstgid rot id@ + script!
-        else drop then
+    \ ts eachel> that's tile  
+    \     dup el?type if load-script firstgid rot id@ + script!
+    \     else drop then
     ; 
 
 : -bitmaps  bitmaps length for  bitmaps pop -bmp  loop ;
