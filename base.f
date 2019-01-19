@@ -42,13 +42,10 @@ include ramen/draw.f    cr .( Loaded draw module... ) \ "
 
 redef off  \ from here on fields only defined if not previously defined
 
-%object sizeof value baseline
-
 include ramen/default.f
 
 : empty
     ." [Empty]" cr
-    /stage -assets baseline %object struct.size !
     s" default-step show-stage" evaluate empty
     0 to now
     only forth definitions
@@ -57,7 +54,6 @@ include ramen/default.f
 : now  now 1p ;
 
 : gild
-    %object sizeof to baseline     
     only forth definitions
     s" marker (empty)" evaluate
     ." [Gild] "
