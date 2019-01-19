@@ -83,8 +83,8 @@ variable fnt  default-font fnt !
 : rrectf  ( w h rx ry )  2>r destxy 2swap 2over 2+ 4af 2r> 2af fore 4@ al_draw_filled_rounded_rectangle ;
 : oval  ( rx ry ) destxy 2swap 4af fore 4@ hairline al_draw_ellipse ;
 : ovalf ( rx ry ) destxy 2swap 4af fore 4@ al_draw_filled_ellipse ;
-: circ  dup oval ;
-: circf  dup ovalf ;
+: circle  dup oval ;
+: circlef  dup ovalf ;
 
 create ftemp  2 cells allot
 : 2transform  ( x y transform - x y )  \ transform coordinates
