@@ -26,6 +26,7 @@ include ramen/structs.f cr .( Loaded structs... ) \ "
 : svar    svar   <fixed ;
 : create-field  create-field <fixed ;
 include ramen/types.f   cr .( Loaded essential datatypes... ) \ "
+include ramen/superobj.f cr .( Loaded Super Objects extension... ) \ "
 
 \ Assets
 include ramen/assets.f  cr .( Loaded assets framework... ) \ "
@@ -35,7 +36,7 @@ include ramen/buffer.f  cr .( Loaded buffer module... ) \ "
 include ramen/sample.f  cr .( Loaded sample module... ) \ "
 
 \ Higher level stuff
-include ramen/obj.f     cr .( Loaded objects module... ) \ "
+include ramen/actor.f     cr .( Loaded objects module... ) \ "
 include ramen/publish.f cr .( Loaded publish module... ) \ "
 include ramen/draw.f    cr .( Loaded draw module... ) \ "
 
