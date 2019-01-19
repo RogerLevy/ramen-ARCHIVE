@@ -94,7 +94,7 @@ create root  object,                    \ parent of all objlists
 
 \ stage
 objlist stage  \ default object list
-: /pool   pool %node venery-sizeof erase  pool /node ;
+: /pool   pool %node venery:sizeof erase  pool /node ;
 : /stage  stage vacate  /pool  0 nextid ! ;
 
 \ static objects

@@ -2,11 +2,11 @@ also venery
     0 value lastfield
     
     struct %struct
-        %struct %node sembed struct.node
+        %struct %node sembed struct>node
         %struct svar struct.size
 
     struct %field
-        %field %node sembed field.node
+        %field %node sembed field>node
         %field svar field.offset
         %field svar field.size
         %field svar field.inspector
