@@ -7,7 +7,10 @@
 \ [x] - Private words
 \ [x] - Constructors and destructors
 \ [x] - Inspection
-\ [x] - Inheritance 
+\ [x] - Inheritance
+\ [x] - Fixed-size classes
+\ [x] - Class extensions
+\ [x] - Metaclasses
 
 \ TODO:
 \ [x] - CLASS: copy all field instances and add them, plus the offset table
@@ -38,46 +41,47 @@
 also venery
     
     struct %class
-        %class %node sembed class>node   
-        %class svar class.size           
-        %class svar class.wordlist
-        %class svar class.template
-        %class svar class.templateSize
-        %class svar class.super
+        %class %node sembed class>node   \ note: %node has first cell reserved for metaclass
+        %class svar class.size           <int
+        %class svar class.wordlist       <hex
+        %class svar class.template       <adr
+        %class svar class.templateSize   <adr
+        %class svar class.super          <adr 
+        %class svar class.fixedSize      <int
         \ %class %node sembed class>pool 
         \ %class svar class.useHeap
-        %class svar class.constructor
-        %class svar class.destructor
+        %class svar class.constructor    <xt
+        %class svar class.destructor     <xt
 
-        %class 1024 cells sfield class>offsetTable
+        %class 1024 cells sfield class>offsetTable  <int
 
     struct %superfield
-        %superfield svar superfield.offset
+        %superfield svar superfield.offset  <int
     
     struct %field 
         %field %node sembed superfield>node 
-        %field svar field.size              
-        %field svar field.offset            
-        %field svar field.inspector         
-        %field svar field.class
-        %field svar field.superfield
+        %field svar field.size        <int   
+        %field svar field.offset      <int      
+        %field svar field.inspector   <xt    
+        %field svar field.class       <adr
+        %field svar field.superfield  <adr
 
     : old-sizeof  sizeof ;    
 
 previous
 
 ( class utils )
-: template  class.template @ ;
-: >super  class.super @ ;
-: >wordlist  class.wordlist @ ;
-: sizeof  class.size @ ;
-: >offsetTable  [ 0 class>offsetTable ]# ?literal s" +" evaluate ; immediate
+: template  ( class - object )  class.template @ ;
+: >super  ( class - class|0 )  class.super @ ;
+: >wordlist  ( class - wordlist )  class.wordlist @ ;
+: sizeof  ( class - n ) class.size @ ;
+: >offsetTable  ( class - adr )  [ 0 class>offsetTable ]# ?literal s" +" evaluate ; immediate
 
 
 ( object utils )
-: >class s" @" evaluate ; immediate
-: size  >class sizeof ;
-: super  me >class >super ;
+: >class  ( object - class )  s" @" evaluate ; immediate
+: size  ( object - n )  >class sizeof ;
+: super  ( - class )  me >class >super ;
 
 ( search order )
 : converse  ( class - )
@@ -106,9 +110,7 @@ create mestk  0 , 16 cells allot
 
 : add-field  ( field class - )  push ;
 
-: does-superfield
-    does>  @ offsetTable + @ me +
-;
+: does-superfield  does> @ offsetTable + @ me + ;
 
 : 's
     s" dup >class >offsetTable" evaluate ' >body @ ?literal s" + @ +" evaluate
@@ -150,55 +152,13 @@ create mestk  0 , 16 cells allot
     ( size ) cc class.size +!
 ;
 
-: /cc
-    cc /node
-    \ cc class>pool /node
-    wordlist cc class.wordlist !
-;
+: class.class ;
 
-: >fields ; 
-
-: copy-fields
-    cc >super >fields each>
-        here >r  %field old-sizeof /allot
-            r@ /node 
-            ( field ) dup field.superfield @ r@ field.superfield !
-                          field.inspector @ r@ field.inspector !
-            r@ cc push
-        r> drop
-;
-
-: class  ( superclass - <name> )
-    create %class old-sizeof allotment to cc
-    cc to lastClass
-    /cc
-    cc class.super !
-    cc >super sizeof cc class.size !
-    copy-fields
-    cc >super class>offsetTable cc class>offsetTable 1024 cells move
-;
-
-: /template
-    cc class.template @ 0= if
-        cc sizeof allotment cc class.template !
-        cc >super class.template @ cc class.template @ cc >super sizeof move                
-        cc dup class.template @ !  \ set the template's class, v. important
-        cc sizeof cc class.templateSize !  \ support extensions
-    else
-        cc class.template @ 
-            cc sizeof allotment cc class.template !
-            cc class.template @ cc class.templateSize @ move
-        cc sizeof cc class.templateSize !
-    then 
-;
-
-: end-class
-    /template
-;
+: allocation  dup class.fixedSize @ dup if nip else drop class.size @ then ;
 
 : /object  ( class object - )
     >r 
-    dup template r@ rot sizeof move
+    dup template r@ rot class.templateSize @ move
     r> as 
     me >class class.constructor @ execute
     ( initialize embedded objects )
@@ -212,11 +172,11 @@ create mestk  0 , 16 cells allot
 \        then
 ;
 
-: static  dup sizeof allotment /object ;
+: static  dup allocation allotment /object ;
 
 : dynamic  ( class - object )
 \    dup class.useHeap @ if
-        dup sizeof allocate throw
+        dup allocation allocate throw
 \    else
 \        dup class>pool length if
 \            dup class>pool pop
@@ -236,11 +196,89 @@ create mestk  0 , 16 cells allot
 \    then
 ;
 
+: class!  ! ;
+
+: /template
+    cc class.template @ cc class.class @ = if
+        \ create a new template copied from superclass
+        cc allocation allotment cc class.template !
+        cc >super class.template @ cc class.template @ cc >super allocation move
+        cc allocation cc class.templateSize !  \ support extensions
+        cc dup class.template @ class!  \ set the template's class, v. important
+    else
+        \ create a new template copied from the current one.
+        cc class.template @ 
+            cc allocation allotment cc class.template !
+            ( template ) cc class.template @ cc class.templateSize @ move
+        cc allocation cc class.templateSize !
+    then
+;
+
+: end-class
+    /template
+;
+
+: /cc
+    cc /node
+    \ cc class>pool /node
+    wordlist cc class.wordlist !
+;
+
+: >fields ; 
+
+: copy-fields
+    cc >super >fields each>
+        here >r  %field old-sizeof /allot
+            r@ /node 
+            ( field ) dup field.superfield @ r@ field.superfield !
+                      dup field.inspector @ r@ field.inspector !
+                      dup field.size @ r@ field.size !
+                      dup field.offset @ r@ field.offset !
+                          field.class @ r@ field.class !
+            r@ cc push
+        r> drop
+;
+
+: metaclassed   ( superclass metaclass - <name> )
+    create
+    ( metaclass ) dup static  me class.class !
+        me to cc
+        cc to lastClass
+        /cc
+    ( superclass ) cc class.super !
+    cc >super sizeof cc class.size !
+    cc >super class.constructor @ cc class.constructor !
+    cc >super class.destructor  @ cc class.destructor !
+    copy-fields
+    cc >super class>offsetTable cc class>offsetTable 1024 cells move
+;
+
+: class  ( superclass - <name> )
+    dup class.class @ metaclassed
+;
+
+: fixed-class  ( size superclass - <name> )
+    class  lastClass class.fixedSize !
+;
+
+
+
+( Root Metaclass )
+
+create <class>  %class old-sizeof /allot  <class> to cc  /cc
+    cc cc class.class !
+    %class old-sizeof dup cc class.size !  cc class.templateSize !
+    cc cc class.template !    cc class>offsetTable  1024  $80000000  ifill
+    ' noop cc class.constructor !
+    ' noop cc class.destructor !
+
+( Root class )
 
 create object-template 0 ,
 
 create <object> %class old-sizeof /allot  <object> to cc  /cc
-    cell cc class.size !  \ the class field
+    <class> <object> class.class !
+    1 cells cc class.size !  \ account for the class field
     object-template cc class.template !
     cc class>offsetTable  1024  $80000000  ifill
     ' noop cc class.constructor !
@@ -264,12 +302,16 @@ previous definitions
 
 : define-fields  to cc ;
 
+: field  create-superfield ;
+: var  cell field ;
+
 ( Venery classes )
 
 <object> class <node>
     %node venery:sizeof <node> class.size !
     :noname me /node ; <node> class.constructor !
 end-class
+
 
 \ <object> class <array>
 \     %array venery:sizeof <array> class.size !
@@ -281,8 +323,8 @@ end-class
 
 ( Inspection )
 
-: (peek)
-    each> ( object field )
+: (peek)  ( object class - ) 
+    each> ( adr object, field, - adr )
         normal         
         dup field.superfield @ body> >name count type space
         bright
@@ -291,38 +333,41 @@ end-class
 ;
 
 : peek  ( object - )
-    dup >class  dup node.first @ field.offset @ u+  (peek)  drop ;
+    dup >class  dup >fields dup length if node.first @ field.offset @ u+ ( skip any collection stuff )
+                                       else drop then
+        (peek) drop normal ;
 
 : extend-class ( - <name> )
-    ' >body to cc
+    ' >body to cc 
 ;
 
+( Utils )
 : .me   me peek ;
+: .class  each> dup field.superfield @ .name   field.offset @ i.  cr ;
+
 
 ( TEST )
 
-: var  cell create-superfield ;
-\ : embed  dup sizeof create-superfield  lastfield
-
-<node> class <actor>
+<node> class <fdsa>
     var en
+    var x
+    var y
     var flags
+end-class
+
+<node> class <asdf>
     var x
     var y
 end-class
 
-<node> class <particle>
-    var x
-    var y
-end-class
+200 200 <fdsa> template 's x 2!
+100 100 <asdf> template 's x 2!
 
-200 200 <actor> template 's x 2!
-100 100 <particle> template 's x 2!
+create ako <fdsa> static
+create bko <asdf> static
 
-create ako <actor> static
-create bko <particle> static
+<fdsa> :: test ." hi" ;
+<fdsa> :pub ok test ;
 
-<actor> :: test ." hi" ;
-<actor> :pub ok test ;
+<fdsa> dynamic  me destroy
 
-<actor> dynamic  me destroy
