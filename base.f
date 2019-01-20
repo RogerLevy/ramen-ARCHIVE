@@ -40,8 +40,6 @@ include ramen/actor.f     cr .( Loaded objects module... ) \ "
 include ramen/publish.f cr .( Loaded publish module... ) \ "
 include ramen/draw.f    cr .( Loaded draw module... ) \ "
 
-redef off  \ from here on fields only defined if not previously defined
-
 include ramen/default.f
 
 : empty

@@ -136,6 +136,8 @@ using cgriding
 : cgrid-size  ( cgrid - w h )
   to cgrid  cols 2@  sectw secth 2* ;
 
-cbox sizeof field ahb
+extend-class <actor> 
+  cbox sizeof field ahb
+end-class
 
 previous

@@ -1,8 +1,8 @@
-[defined] roledef-size [if] roledef-size [else] 4 kb [then] constant /roledef
 
-variable lastRole \ used by map loaders (when loading objects scripts)
+0 value lastRole \ used by map loaders (when loading objects scripts)
 variable nextid
-<object> class <role>
+
+<class> sizeof 4 kb +  <class> fixed-class <role>
 end-class
 
 <node> class <actor>
@@ -15,8 +15,8 @@ end-class
     var marked <flag \ for deletion
     var role <adr
 end-class
-create basis <role> static \ default rolevar and action values for all newly created roles
-variable redef \ for rolevars and actions
+
+<role> template constant basis          \ default rolevar and action values for all newly created roles
 
 <actor> template as
     en on
@@ -67,35 +67,46 @@ objlist stage  \ default object list
 \ Note that role vars are global and not tied to any specific role.
 \ also, note that DERIVE defaults all actions to call the BASIS's current definition
 \ indirectly, so it can be changed anytime.
-: ?update  ( - <name> )
+: ?update  ( class - <name> )
     >in @
-    defined if  >body to lastRole  drop r> drop  ;then  drop
+    defined if  >body to lastRole  drop r> drop  drop ;then  drop
     >in ! ;
 : role@  ( - role ) role @ dup 0= abort" Error: Role is null." ;
-: create-rolefield  ( size - <name> )  <role> define-fields  create-superfield 0 , ;
-: rolefield  ( size - <name> ) create-rolefield  does> field.offset @ role@ + ;
+: rolefield>ofs  @ <role> >offsetTable + @ ;
+: rolefield  ( size - <name> )
+    <role> define-fields  create-superfield 0 ,  end-class
+    does> rolefield>ofs role@ + ;
 : rolevar  ( - <name> )  cell rolefield ;
 : is-action?  %field old-sizeof + @ ;
 : ?execute  dup if execute ;then drop ;
+
 : action   ( - <name> ) ( ??? - ??? )
     rolevar <adr true here cell- ! 
-    does> field.offset @ role@ + @ ?execute ;
-: :to   ( roledef - <name> ... )  ' >body field.offset @ + :noname swap ! ;
-: +exec  + @ execute ;
-: ->  ( roledef - <action> )
-    ' >body field.offset @ postpone literal postpone +exec ; immediate
+    does> rolefield>ofs role@ + @ ?execute ;
 
-: role,
-    here locals| child |
-    basis /roledef move,
-    ['] is-action? <role> some>
-        :noname swap
+: :to   ( roledef - <name> ... )
+    ' >body rolefield>ofs + :noname swap ! ;
+
+: +exec  + @ execute ;
+
+: ->  ( roledef - <action> )
+    s" role@" evaluate  ' >body rolefield>ofs ?literal  s" +exec" evaluate ; immediate
+
+: role  ( superclass - <name> )
+    ?update <role> metaclassed
+    lastClass to lastRole
+    ['] is-action? <role> >fields some>
         field.offset @ 
+        :noname swap
         dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile "bridge"
-        child + !  \ assign our "bridge" to the corresponding action
+        lastRole + !  \ assign our "bridge" to the corresponding action
 ;
-: defrole  ( - <name> ) ?update  create  here to lastRole  role, ;
 
 \ Inspection
 : .role  ( obj - )  's role @ ?dup if peek else ." No role" then ;
 : .objlist  ( objlist - )  dup length 1i i. each> >{  cr ." ID: " id ?  ."  X/Y: " x 2?  } ;
+
+
+( TEST )
+<actor> role <blah>
+end-class

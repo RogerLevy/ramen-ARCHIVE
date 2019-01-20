@@ -14,7 +14,8 @@ defer tmxrect  ( object-nnn w h - )
 extend-class <actor>
     var gid
 end-class
-rolevar recipe
+
+\ rolevar recipe
 
 include ramen/lib/tiled/tmx.f
 also xmling also tmxing  
@@ -59,7 +60,7 @@ also xmling also tmxing
 
 \ You don't have to define a recipe.  The last defined role will be used.
 \ note the role's name must match the filename
-: :recipe  ( role - )  :noname swap 's recipe !  ;
+\ : :recipe  ( role - )  :noname swap 's recipe !  ;
 
 \ LOAD-SCRIPTS
 \ Conditionally load the scripts associated with any roles that aren't defined.
