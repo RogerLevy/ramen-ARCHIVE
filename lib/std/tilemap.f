@@ -105,14 +105,14 @@ create tstep 16 , 16 ,
 \ They don't allocate any buffers for map data.
 \ A part of the singular buffer TILEBUF is located using the scrollx/scrolly values.
 
-: /tilemap
+: /tilemap  ( - )
     viewwh w 2!
     draw>
         tbi @ tilebase!
         at@ w 2@ clip>
             scrollx 2@  tstep 2@ scrollofs  tilebuf loc  tilebuf pitch@  tilemap ;
 
-: /isotilemap
+: /isotilemap  ( - )
     draw>
         tbi @ tilebase!
         scrollx 2@  tstep 2@ scrollofs  tilebuf loc  tilebuf pitch@  50 50 isotilemap ;

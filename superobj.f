@@ -19,6 +19,7 @@
 \ [x] - Initialize offset tables with high offsets intended to cause segfaults
 \ [x] - >{ { }
 \ [ ] - Implement ?ALREADY
+\ [ ] - Figure out a way to cull all EMPTY'd classes from all class's lists of children 
 
 \ MAYBE, MAYBE NOT:
 \ [ ] - Automatic construction/destruction of embedded objects, such as collections  (downside: slow)
@@ -52,6 +53,8 @@ also venery
         \ %class svar class.useHeap
         %class svar class.constructor    <xt
         %class svar class.destructor     <xt
+        %class %node sembed class>fields
+        %class svar class.isMeta         <flag
 
         %class 1024 cells sfield class>offsetTable  <int
 
@@ -65,6 +68,7 @@ also venery
         %field svar field.inspector   <xt    
         %field svar field.class       <adr
         %field svar field.superfield  <adr
+        %field svar field.attributes
 
     : old-sizeof  sizeof ;    
 
@@ -76,12 +80,15 @@ previous
 : >wordlist  ( class - wordlist )  class.wordlist @ ;
 : sizeof  ( class - n ) class.size @ ;
 : >offsetTable  ( class - adr )  [ 0 class>offsetTable ]# ?literal s" +" evaluate ; immediate
+: >fields  class>fields ; 
+: isMeta?  class.isMeta @ ;
 
 
 ( object utils )
 : >class  ( object - class )  s" @" evaluate ; immediate
 : size  ( object - n )  >class sizeof ;
 : super  ( - class )  me >class >super ;
+: class!  ( class object - ) ! ;
 
 ( search order )
 : converse  ( class - )
@@ -108,7 +115,7 @@ create mestk  0 , 16 cells allot
 : >{ ( object - )  s" { as " evaluate ; immediate 
 
 
-: add-field  ( field class - )  push ;
+: add-field  ( field class - )  >fields push ;
 
 : does-superfield  does> @ offsetTable + @ me + ;
 
@@ -121,6 +128,40 @@ create mestk  0 , 16 cells allot
 : (.field)  ( adr size - )
     bounds ?do i @ . cell +loop ;
 
+( create the anonymous field instance, for great justice )
+: create-field-instance  ( size superfield - )
+    to (superfield)
+    
+    \ ?already  \ can only have one of each superfield per class
+    
+    cc sizeof
+        cc class>offsetTable
+            (superfield) @ ( the offset slot offset ) + !
+    
+    %field old-sizeof allotment >r
+        r@ to lastfield  \ needed for defining inspectors
+        r@ /node
+        (superfield)  r@ field.superfield !
+        ( size ) dup r@ field.size !
+        cc class.size @ r@ field.offset !
+        ['] (.field) r@ field.inspector !
+        r@ cc add-field
+    r> drop
+
+    ( size ) cc class.size +!
+;
+
+defer (propogate-superfield)
+0 value (size)
+: propogate-superfield 
+    (size) (superfield) create-field-instance
+    cc each>
+        cc >r
+            ( class ) to cc (propogate-superfield)   \ RECURSE doesn't work with EACH> unfortunately
+        r> to cc
+;
+' propogate-superfield is (propogate-superfield)
+
 : create-superfield  ( size - <name> )  ( - adr )
     field-exists not if
         ( not defined; define the superfield word )
@@ -130,35 +171,15 @@ create mestk  0 , 16 cells allot
     then
     
     ' >body to (superfield)
-    
-    \ ?already  \ can only define once per class
-    
-    cc sizeof
-        cc class>offsetTable
-            (superfield) @ ( the offset slot offset ) + !
-        
-    
-    ( create the field instance, for great justice )
-    %field old-sizeof allotment >r
-        r@ to lastfield
-        r@ /node
-        (superfield)  r@ field.superfield !
-        r@ cc add-field
-        ( size ) dup r@ field.size !
-        cc class.size @ r@ field.offset !
-        ['] (.field) r@ field.inspector !
-    r> drop
-
-    ( size ) cc class.size +!
+    ( size ) to (size)
+    propogate-superfield
 ;
-
-: class.class ;
 
 : allocation  dup class.fixedSize @ dup if nip else drop class.size @ then ;
 
 : /object  ( class object - )
     >r 
-    dup template r@ rot class.templateSize @ move
+        dup template r@ rot class.templateSize @ move
     r> as 
     me >class class.constructor @ execute
     ( initialize embedded objects )
@@ -196,35 +217,16 @@ create mestk  0 , 16 cells allot
 \    then
 ;
 
-: class!  ! ;
-
-: /template
-    cc class.template @ cc class.class @ = if
-        \ create a new template copied from superclass
-        cc allocation allotment cc class.template !
-        cc >super class.template @ cc class.template @ cc >super allocation move
-        cc allocation cc class.templateSize !  \ support extensions
-        cc dup class.template @ class!  \ set the template's class, v. important
-    else
-        \ create a new template copied from the current one.
-        cc class.template @ 
-            cc allocation allotment cc class.template !
-            ( template ) cc class.template @ cc class.templateSize @ move
-        cc allocation cc class.templateSize !
-    then
-;
-
-: end-class
-    /template
+: 0node  ( node - )
+    dup cell+ %node venery:sizeof cell- erase
+    /node
 ;
 
 : /cc
-    cc /node
-    \ cc class>pool /node
+    cc 0node
+    cc >fields 0node
     wordlist cc class.wordlist !
 ;
-
-: >fields ; 
 
 : copy-fields
     cc >super >fields each>
@@ -235,54 +237,95 @@ create mestk  0 , 16 cells allot
                       dup field.size @ r@ field.size !
                       dup field.offset @ r@ field.offset !
                           field.class @ r@ field.class !
-            r@ cc push
+            r@ cc add-field
         r> drop
 ;
 
-: metaclassed   ( superclass metaclass - <name> )
+variable makeItFixedSize
+
+: inherit   ( superclass metaclass - <name> )
     create
-    ( metaclass ) dup static  me class.class !
+    ( metaclass ) dup static  me class!
         me to cc
         cc to lastClass
         /cc
+        
     ( superclass ) cc class.super !
+    
+    cc dup >super push
     cc >super sizeof cc class.size !
     cc >super class.constructor @ cc class.constructor !
     cc >super class.destructor  @ cc class.destructor !
+    cc >super class.fixedSize   @ cc class.fixedSize !
+    cc >super class.isMeta      @ cc class.isMeta !
+    cc isMeta? 0= if cc class.template off then  \ kludgey but necessary
+    makeItFixedSize @ cc class.fixedSize !
+    cc isMeta? makeItFixedSize @ and if  cc class.fixedSize @  cc sizeof - #8000 + /allot  then
     copy-fields
     cc >super class>offsetTable cc class>offsetTable 1024 cells move
 ;
 
 : class  ( superclass - <name> )
-    dup class.class @ metaclassed
+    makeItFixedSize off  dup >class inherit
 ;
 
 : fixed-class  ( size superclass - <name> )
-    class  lastClass class.fixedSize !
+    swap makeItFixedSize !  dup >class inherit
 ;
 
+
+: /template
+    cc isMeta? if
+        cc dup class.template !  \ class is its own template
+        cc allocation cc class.templateSize !
+        cc dup class! \ metaclass's classes are themselves
+    ;then
+    cc class.template @ 0= if
+        \ create a new template copied from superclass
+        cc allocation allotment cc class.template !
+        cc >super template cc template cc >super allocation move
+        cc allocation cc class.templateSize !  \ support extensions
+        cc dup template class!  \ set the template's class, v. important
+    else
+        \ create a new template copied from the current one.  (for when extending classes)
+        cc template 
+            cc allocation allotment cc class.template !
+            ( template ) cc template cc class.templateSize @ move
+        cc allocation cc class.templateSize !
+    then
+;
+
+: end-class
+    /template
+    cc each> cc >r to cc recurse r> to cc
+;
 
 
 ( Root Metaclass )
 
 create <class>  %class old-sizeof /allot  <class> to cc  /cc
-    cc cc class.class !
+    cc cc class!
     %class old-sizeof dup cc class.size !  cc class.templateSize !
-    cc cc class.template !    cc class>offsetTable  1024  $80000000  ifill
+    cc cc class.template !
+    cc class>offsetTable  1024  $80000000  ifill
     ' noop cc class.constructor !
     ' noop cc class.destructor !
+    cc class.isMeta on
 
 ( Root class )
 
 create object-template 0 ,
 
 create <object> %class old-sizeof /allot  <object> to cc  /cc
-    <class> <object> class.class !
+    <class> <object> class!
     1 cells cc class.size !  \ account for the class field
     object-template cc class.template !
     cc class>offsetTable  1024  $80000000  ifill
     ' noop cc class.constructor !
     ' noop cc class.destructor !
+
+<object> object-template class!
+
 
 
 <object> >wordlist +order definitions
@@ -324,7 +367,7 @@ end-class
 ( Inspection )
 
 : (peek)  ( object class - ) 
-    each> ( adr object, field, - adr )
+    >fields each> ( adr object, field, - adr )
         normal         
         dup field.superfield @ body> >name count type space
         bright
@@ -333,6 +376,7 @@ end-class
 ;
 
 : peek  ( object - )
+    dup >class .name 
     dup >class  dup >fields dup length if node.first @ field.offset @ u+ ( skip any collection stuff )
                                        else drop then
         (peek) drop normal ;
@@ -343,10 +387,18 @@ end-class
 
 ( Utils )
 : .me   me peek ;
-: .class  each> dup field.superfield @ .name   field.offset @ i.  cr ;
+: .class  >fields each> dup field.superfield @ .name   field.offset @ i.  cr ;
 
+variable lev
+: indent>  cr lev @ 1i spaces  3 lev +!   r> call    -3 lev +!  ;
+: .classtree  each> indent> dup .name dup length if recurse else drop then ;
 
 ( TEST )
+
+marker dispose
+: test  not abort" Super Objects unit test fail" ;
+
+<node> isMeta? 0= test
 
 <node> class <fdsa>
     var en
@@ -355,19 +407,66 @@ end-class
     var flags
 end-class
 
+( test basic class stuff: )
+<fdsa> isMeta? 0= test
+<fdsa> >class isMeta? test
+<fdsa> template >class <fdsa> = test
+
+( test that <FDSA>'s offset table is right: )
+<fdsa> >offsetTable @ $80000000 <> test
+<fdsa> >offsetTable cell+ @ $80000000 <> test
+<fdsa> >offsetTable cell+ cell+ @ $80000000 <> test
+<fdsa> >offsetTable cell+ cell+ cell+ @ $80000000 <> test
+
+( test templates and overloaded fields: )
+200 200 <fdsa> template 's x 2!
+
 <node> class <asdf>
     var x
     var y
 end-class
 
-200 200 <fdsa> template 's x 2!
 100 100 <asdf> template 's x 2!
 
 create ako <fdsa> static
 create bko <asdf> static
 
+ako >{ x @ 200 = } test
+ako 's x @ 200 = test
+bko >{ x @ 100 = } test
+bko 's x @ 100 = test
+
 <fdsa> :: test ." hi" ;
 <fdsa> :pub ok test ;
 
-<fdsa> dynamic  me destroy
+<fdsa> class <sub>
+end-class
 
+( test EXTEND-CLASS: )
+extend-class <fdsa>
+    var blah
+end-class
+
+20 <fdsa> template 's blah !
+
+<fdsa> dynamic
+    me >class <fdsa> = test
+    blah @ 20 = test
+    me peek
+me destroy
+
+( test that the field defined in the extension propogated: )
+123 <sub> template 's blah !
+<sub> dynamic
+    blah @ 123 = test 
+me destroy
+
+\ undo everything added above ...
+<node> 0node
+<object> 0node
+
+( test that 0NODE worked: )
+<node> length 0= test
+<object> node.first @ 0= test
+
+dispose

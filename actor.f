@@ -13,14 +13,12 @@ end-class
     var drw <adr
     var beha <adr
     var marked <flag \ for deletion
-    var role <adr
 end-class
 
-<role> template constant basis          \ default rolevar and action values for all newly created roles
+: basis <role> template ;         \ default rolevar and action values for all newly created roles
 
 <actor> template as
     en on
-    basis role !
 
 : var  cell create-superfield ;
 : field  create-superfield ;
@@ -55,37 +53,38 @@ create root  <node> static            \ parent of all objlists
 : -act  ( - ) act> noop ;
 : objlist  ( - <name> )  create <node> static me root push ;
 
-\ stage
+( stage )
 objlist stage  \ default object list
 \ : /pool   pool %node venery:sizeof erase  pool /node ;
 : /stage  stage vacate  ( /pool )  0 nextid ! ;
 
-\ static actors
+( static actors )
 : actor   ( class parent - )  swap static  me swap push  init  $fffffffe en ! ;
 
-\ Roles
+( Roles )
+\ Roles are classes whose metaclass is <ROLE>, which we can define "static properties" on
 \ Note that role vars are global and not tied to any specific role.
-\ also, note that DERIVE defaults all actions to call the BASIS's current definition
+\ also, note that the default of all actions is to call the BASIS's current definition
 \ indirectly, so it can be changed anytime.
 : ?update  ( class - <name> )
     >in @
     defined if  >body to lastRole  drop r> drop  drop ;then  drop
     >in ! ;
-: role@  ( - role ) role @ dup 0= abort" Error: Role is null." ;
+: role@  ( - role ) me >class dup 0= abort" Error: Role is null." ;
 : rolefield>ofs  @ <role> >offsetTable + @ ;
 : rolefield  ( size - <name> )
-    <role> define-fields  create-superfield 0 ,  end-class
-    does> rolefield>ofs role@ + ;
+    create-superfield  0 , ( <- flag for actions )  
+    does>  rolefield>ofs role@ + ;
 : rolevar  ( - <name> )  cell rolefield ;
-: is-action?  %field old-sizeof + @ ;
+: is-action?  field.attributes @ ;
 : ?execute  dup if execute ;then drop ;
 
 : action   ( - <name> ) ( ??? - ??? )
-    rolevar <adr true here cell- ! 
+    rolevar <adr  true lastField field.attributes ! 
     does> rolefield>ofs role@ + @ ?execute ;
 
 : :to   ( roledef - <name> ... )
-    ' >body rolefield>ofs + :noname swap ! ;
+    ' >body rolefield>ofs .s + :noname swap ! ;
 
 : +exec  + @ execute ;
 
@@ -93,7 +92,7 @@ objlist stage  \ default object list
     s" role@" evaluate  ' >body rolefield>ofs ?literal  s" +exec" evaluate ; immediate
 
 : role  ( superclass - <name> )
-    ?update <role> metaclassed
+    ?update <role> inherit
     lastClass to lastRole
     ['] is-action? <role> >fields some>
         field.offset @ 
@@ -102,11 +101,7 @@ objlist stage  \ default object list
         lastRole + !  \ assign our "bridge" to the corresponding action
 ;
 
-\ Inspection
-: .role  ( obj - )  's role @ ?dup if peek else ." No role" then ;
+( Inspection )
+: .role  ( obj - )  >class ?dup if peek else ." No role" then ;
 : .objlist  ( objlist - )  dup length 1i i. each> >{  cr ." ID: " id ?  ."  X/Y: " x 2?  } ;
 
-
-( TEST )
-<actor> role <blah>
-end-class
