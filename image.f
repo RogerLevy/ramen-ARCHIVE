@@ -22,8 +22,7 @@ defasset %image
 \ >bmp  ( image - ALLEGRO_BITMAP )
 : reload-image  >r  r@ srcfile count  findfile  zstring al_load_bitmap  r> image.bmp ! ;
 : init-image  >r  r@ srcfile place  ['] reload-image r@ register  r> reload-image ;
-: image   here >r  %image sizeof allotment init-image  r> ; 
-: image:  create  image  drop ;
+: image:  create  %image sizeof allotment init-image  ;
 : >bmp  image.bmp @ ;
 
 \ load-image  ( path c image - ) 
