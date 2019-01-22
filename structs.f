@@ -31,7 +31,7 @@ previous
             
 : sfield  ( struct bytes - <name> )  ( adr - adr+n )
     create-field
-        does> field.offset @ + ;
+        does> [ 0 field.offset ]# + @ + ;
         
 : svar  ( struct - <name> )  ( adr - adr+n )
     cell sfield ;

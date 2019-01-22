@@ -15,8 +15,7 @@
 \ [ ] - Implement arrays, stacks and strings, including dynamic ones.
 \ [x] - Initialize offset tables with high offsets intended to cause segfaults
 \ [x] - >{ { }
-\ [ ] - Implement ?ALREADY
-\ [ ] - Figure out a way to cull all EMPTY'd classes from all class's lists of children 
+\ [x] - Implement ?ALREADY
 
 \ MAYBE, MAYBE NOT:
 \ [ ] - Automatic construction/destruction of embedded objects, such as collections  (downside: slow)
