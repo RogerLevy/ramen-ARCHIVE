@@ -16,7 +16,7 @@ end-class
 end-class
 :noname me /node ; <actor> class.constructor !
 
-: basis <actor> prototype ;  \ default rolevar and action values for all newly created roles
+: basis <role> prototype ;  \ default rolevar and action values for all newly created roles
 
 <actor> prototype as
     en on
@@ -28,20 +28,25 @@ create objlists  <node> static            \ parent of all objlists
 : >parent  ( node - node|0 ) node.parent @ ;
 : !id  1 nextid +!  nextid @ id ! ;
 : init  ( - )  !id ;
-: one ( parent - me=obj )  <actor> dynamic  me swap push  init  at@ x 2! ;
+: one ( parent - me=obj )  <actor> static  me swap push  init  at@ x 2! ;
 : ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;
 : dismiss ( - ) marked on ;
 : dynamic?  ( - flag ) en @ #1 and ;
+
 \ :noname  pool length 0= if here object, else pool pop then ; is new-node
 \ :noname  >{ en @ $fffffffe <> if me pool push else me ?remove then } ; is free-node
-' destroy is free-node
+\ :noname
+\     dup <actor> is? not if destroy ;then
+\     >{ en @ $fffffffe <> if me ?remove me destroy else me ?remove then }
+\ ; is free-node
+:noname  ?remove ; is free-node
 
 \ making stuff move and displaying them
 : ?call  ( adr - ) ?dup -exit call ;
 : draw   ( - ) en @ -exit  hidden @ ?exit  x 2@ at  drw @ ?call ;
 : draws  ( objlist ) each> as draw ;
 : act   ( - ) en @ -exit  beha @ ?call ;
-: sweep ( objlist ) each> as marked @ -exit marked off id off me free-node ;
+: sweep ( objlist ) each> as marked @ -exit  marked off  id off  me free-node ;
 : acts  ( objlist ) each> as act ;
 : draw>  ( - <code> ) r> drw ! hidden off ;
 : act>   ( - <code> ) r> beha ! ;
@@ -54,39 +59,41 @@ objlist stage  \ default object list
 : /stage  stage vacate  0 nextid ! ;
 
 ( static actors )
-: actor   ( class parent - )  swap static  me swap push  init  $fffffffe en ! ;
+: actor   ( parent - )  <actor> static  me swap push  init  $fffffffe en ! ;
 
-( role fields )
+( role stuff )
 : role@  ( - role )
-    me >class dup 0= abort" Error: Role is null." ;
-    
-: rolefield>ofs  ( rolefield - offset )
-    @ <role> >offsetTable + @ ;
+    role @ dup 0= abort" Error: Role is null." ;
 
 : role's  ( - <field> adr )
-    s" role@" evaluate ' >body rolefield>ofs ?literal s" +" evaluate
+    s" role@" evaluate  ' >body <role> superfield>offset ?literal s" +" evaluate
 ; immediate
 
 ( actions )
 : is-action?  field.attributes @ ;
 
 : action   ( - <name> ) ( ??? - ??? )
-    var <adr
+    <role> fields:
+    cell ?superfield <adr ( flag ) 
     true lastField field.attributes ! 
-    does>  rolefield>ofs role@ + @ execute ;    
+    -exit
+    does>  <role> superfield>offset role@ + @ execute ;    
+
+: rolevar  <role> fields: var ;
+: rolefield  <role> fields: field ;
+
 
 : :to   ( roledef - <name> ... )
-    ' >body rolefield>ofs + :noname swap ! ;
-
-: +exec  + @ execute ;
+    postpone 's :noname swap ! ;
 
 : ->  ( roledef - <action> )
-    ' >body rolefield>ofs ?literal  s" +exec" evaluate ; immediate
+    postpone 's s" @ execute" evaluate ; immediate
 
 ( create role )
 : ?update  ( - <name> )
     >in @
     defined if  >body to lastRole  r> drop drop ;then
+    drop
     >in ! ;
 
 : create-role  ( - <name> )
@@ -94,8 +101,8 @@ objlist stage  \ default object list
     me to lastRole
     ['] is-action? <role> >fields some>
         :noname swap
-            rolefield>ofs
-            dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile "bridge" code
+            field.offset @
+            dup basis + postpone literal s" @ execute ; " evaluate  \ compile "bridge" code
             lastRole + !  \ assign our "bridge" to the corresponding action    
 ;
 
