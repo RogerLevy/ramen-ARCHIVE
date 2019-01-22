@@ -17,7 +17,6 @@ defasset %image
 
 \ reload-image  ( image - )  (re)load from file
 \ init-image  ( path c image - )  normal asset init 
-\ image  ( path c - image )  create unnamed image.  (redefining IMAGE is a nice way of "sealing" the struct.)
 \ image:  ( path c - <name> )  declare named image.  
 \ >bmp  ( image - ALLEGRO_BITMAP )
 : reload-image  >r  r@ srcfile count  findfile  zstring al_load_bitmap  r> image.bmp ! ;
@@ -35,14 +34,12 @@ defasset %image
 \ recreate-canvas  ( image - )
 \ resize-canvas  ( w h image - )
 \ init-canvas  ( w h image - )
-\ canvas  ( w h - image )
 \ canvas:  ( w h - <name> )
 : recreate-canvas  #24 al_set_new_bitmap_depth  >r  r@ canvas.w 2@ 2i al_create_bitmap  r> image.bmp ! ;
 :slang ?samesize  >r  2dup r@ canvas.w 2@ d= if  2drop  r> r> 2drop  exit then  r> ;
 : resize-canvas  ?samesize  >r r@ free-image  r@  canvas.w 2!  r> recreate-canvas ;
 : init-canvas  >r    ['] recreate-canvas r@ register  r@  canvas.w 2!  r> recreate-canvas ;
-: canvas  here >r  %image sizeof allotment init-canvas  r> ;
-: canvas:  create  canvas  drop  ;
+: canvas:  create  %image sizeof allotment init-canvas  ;
 
 \ Sub-image stuff
 
