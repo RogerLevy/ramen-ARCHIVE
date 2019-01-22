@@ -2,6 +2,7 @@
 \ pretty similar to the standard set,
 \ but omits Tiled support, collision grid, tilemap rendering, and some animation words, and adds a.f
 
+depend ramen/actor.f               cr .( Loaded objects module... ) \ "
 depend ramen/lib/std/rangetools.f  cr .( Loaded rangetools module. ) \ "
 depend ramen/lib/std/task.f        cr .( Loaded task module. ) \ "
 depend ramen/lib/std/zsort.f       cr .( Loaded zsort module. ) \ "
@@ -14,8 +15,12 @@ depend ramen/lib/std/collision.f   cr .( Loaded tilemap collision module. ) \ "
 depend ramen/lib/array2d.f
 depend ramen/lib/buffer2d.f
 
+: show-stage  ( - ) show> ramenbg mount stage draws ;
+show-stage 
+
 : think  stage acts stage multi ;
 : physics  stage each> as vx 2@ x 2+! ;
 : default-step  step> think physics stage sweep ;
+default-step
 
 cr .( Finished loading Minimal pack. ) \ "

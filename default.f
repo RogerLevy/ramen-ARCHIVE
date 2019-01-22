@@ -33,15 +33,3 @@ create c2  0 , 0 , 0 , 1 ,
     c1 c2
 ;
 : ramenbg  ( - ) 0 0 at unmount colorcycle displaywh vgradient ;
-
-( default show )
-: show-stage  ( - ) show> ramenbg mount stage draws ;
-show-stage 
-
-( default step; note no multitasking )
-:slang think  ( - ) stage acts ;
-:slang physics ( - ) stage each> as vx 2@ x 2+! ;
-: default-step ( - ) step> think physics stage sweep ;
-default-step
-
-: stop ( - ) step> noop ;

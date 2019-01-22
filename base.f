@@ -36,17 +36,19 @@ include ramen/buffer.f  cr .( Loaded buffer module... ) \ "
 include ramen/sample.f  cr .( Loaded sample module... ) \ "
 
 \ Higher level stuff
-include ramen/actor.f     cr .( Loaded objects module... ) \ "
 include ramen/publish.f cr .( Loaded publish module... ) \ "
 include ramen/draw.f    cr .( Loaded draw module... ) \ "
 
 include ramen/default.f
 
+: void ( - ) show> ramenbg ;
+: panic ( - ) step> noop ;
+
 : empty
+    page
     ." [Empty]" cr
-    s" default-step show-stage" evaluate empty
+    panic void empty
     0 to now
-    only forth definitions
 ;
 
 : now  now 1p ;
