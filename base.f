@@ -41,8 +41,8 @@ include ramen/draw.f    cr .( Loaded draw module... ) \ "
 
 include ramen/default.f
 
-: void ( - ) show> ramenbg ;
 : panic ( - ) step> noop ;
+: void ( - ) panic show> ramenbg ;
 
 : empty
     page

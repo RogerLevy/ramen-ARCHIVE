@@ -270,10 +270,10 @@ previous definitions
     get-current swap dup converse ;
 
 : :private ( class - <name> <code> current class ; )
-    knowing (knowing) +order : ;
+    knowing definitions (knowing) +order : ;
 
 : :public ( class - <name> <code> ; )
-    knowing definitions (knowing) +order : ;
+    knowing (knowing) +order : ;
 
 : field  ( size - <name> ) ( object - object+n )
     ?superfield drop ;
