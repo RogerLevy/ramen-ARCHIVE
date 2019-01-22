@@ -26,7 +26,8 @@
 \ depends on structs.f and Venery
 
 
-0 value me
+\ 0 value me  \ defined in piston.f
+
 0 value offsetTable
 0 value cc \ current Class
 0 value nextOffsetSlot \ next offset in offset table
@@ -82,6 +83,7 @@ previous
 : >class  ( object - class )  s" @" evaluate ; immediate
 : size  ( object - n )  >class sizeof ;
 : class!  ( class object - ) ! ;
+: is?  ( object class - flag ) swap >class = ;
 
 ( search order )
 : converse  ( class - )
@@ -108,10 +110,18 @@ create mestk  0 , 16 cells allot
 
 : add-field  ( field class - )  >fields push ;
 
-: does-superfield  does> @ offsetTable + @ me + ;
+: superfield.offset ; immediate
 
-: 's
-    s" dup >class >offsetTable" evaluate ' >body @ ?literal s" + @ +" evaluate
+: does-superfield  does> superfield.offset @ offsetTable + @ me + ;
+
+: 's  ( object - <field> adr )
+    state @ if
+        s" dup >class >offsetTable" evaluate
+        ' >body superfield.offset @ postpone literal
+        s" + @ +" evaluate
+    else
+        dup >class >offsetTable ' >body superfield.offset @ + @ +
+    then
 ; immediate
 
 : field-exists  >in @ defined if >body cell+ @ $12345678 = else drop 0 then swap >in ! ;
@@ -119,10 +129,22 @@ create mestk  0 , 16 cells allot
 : (.field)  ( adr size - )
     bounds ?do i @ dup if . else i. then cell +loop ;
 
+
+: superfield=  field.superfield @ (superfield) = ;
+
+: ?already
+    cc >fields 0 ['] superfield= rot which@ dup if
+        r> drop
+        ( found-field ) to lastField
+        \ (Superfield) .name
+    else
+        drop
+    then ;
+
 : create-field-instance  ( size superfield - )
     to (superfield) to (size)
     
-    \ ?already  \ can only have one instance of each superfield per class
+    ?already  \ early out if instance of superfield already in class
     
     cc sizeof
         cc class>offsetTable
@@ -142,15 +164,22 @@ create mestk  0 , 16 cells allot
 ;
 
 : create-superfield  ( size - <name> )  ( - adr )
+    >in @ create >in !
+    nextOffsetSlot , $12345678 , does-superfield
+    cell +to nextOffsetSlot
+;
+
+: ?superfield  ( size - <name> flag )  ( - adr )
     field-exists not if
         ( not defined; define the superfield word )
-        >in @ create >in !
-        nextOffsetSlot , $12345678 , does-superfield
-        cell +to nextOffsetSlot
+        create-superfield
+        ( create the anonymous field instance, for great justice )
+        ( size ) ' >body create-field-instance
+        true
+    else 
+        ( size ) ' >body create-field-instance
+        false
     then
-    
-    ( create the anonymous field instance, for great justice )
-    ( size ) ' >body create-field-instance
 ;
 
 : allocation  dup class.maxSize @ dup if nip else drop class.size @ then ;
@@ -246,8 +275,19 @@ previous definitions
 : :public ( class - <name> <code> ; )
     knowing definitions (knowing) +order : ;
 
-: field  create-superfield ;
-: var  cell field ;
+: field  ( size - <name> ) ( object - object+n )
+    ?superfield drop ;
+    
+: var  ( - <name> ) ( object - object+n )
+    cell field ;
+
+: fields:  ( class - )
+    to cc ;
+
+\ superfield offset utility
+: superfield>offset  ( superfield class - offset )
+    >offsetTable swap superfield.offset @ + @ ;
+
 
 ( Inspection )
 
