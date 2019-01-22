@@ -1,38 +1,34 @@
-
 0 value lastRole \ used by map loaders (when loading objects scripts)
 variable nextid
 
-<class> sizeof 4 kb +  <class> fixed-class <role>
+0  4 kb  class <role>
 end-class
 
-<node> class <actor>
+<node> sizeof  #1024  class <actor>
+    var role <body
     var id 
     var en <hex
-    var hidden <flag  
+    var hidden <flag
+    var marked <flag \ for deletion
     var x  var y  var vx  var vy
     var drw <adr
     var beha <adr
-    var marked <flag \ for deletion
 end-class
+:noname me /node ; <actor> class.constructor !
 
-: basis <role> template ;         \ default rolevar and action values for all newly created roles
+: basis <actor> prototype ;  \ default rolevar and action values for all newly created roles
 
-<actor> template as
+<actor> prototype as
     en on
 
-: var  cell create-superfield ;
-: field  create-superfield ;
-
-\ create pool  <node> static            \ where we cache free objects
-create root  <node> static            \ parent of all objlists
+create objlists  <node> static            \ parent of all objlists
 
 : >first  ( node - node|0 ) node.first @ ;
 : >last   ( node - node|0 ) node.last @ ;
 : >parent  ( node - node|0 ) node.parent @ ;
 : !id  1 nextid +!  nextid @ id ! ;
 : init  ( - )  !id ;
-: one ( class parent - me=obj )  swap dynamic  init me swap push  at@ x 2! ;
-: actors  ( class parent n - ) { for 2dup one loop drop drop } ;
+: one ( parent - me=obj )  <actor> dynamic  me swap push  init  at@ x 2! ;
 : ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;
 : dismiss ( - ) marked on ;
 : dynamic?  ( - flag ) en @ #1 and ;
@@ -51,57 +47,64 @@ create root  <node> static            \ parent of all objlists
 : act>   ( - <code> ) r> beha ! ;
 : away  ( obj x y - ) rot 's x 2@ 2+ at ;
 : -act  ( - ) act> noop ;
-: objlist  ( - <name> )  create <node> static me root push ;
+: objlist  ( - <name> )  create <node> static me objlists push ;
 
 ( stage )
 objlist stage  \ default object list
-\ : /pool   pool %node venery:sizeof erase  pool /node ;
-: /stage  stage vacate  ( /pool )  0 nextid ! ;
+: /stage  stage vacate  0 nextid ! ;
 
 ( static actors )
 : actor   ( class parent - )  swap static  me swap push  init  $fffffffe en ! ;
 
-( Roles )
-\ Roles are classes whose metaclass is <ROLE>, which we can define "static properties" on
-\ Note that role vars are global and not tied to any specific role.
-\ also, note that the default of all actions is to call the BASIS's current definition
-\ indirectly, so it can be changed anytime.
-: ?update  ( class - <name> )
-    >in @
-    defined if  >body to lastRole  drop r> drop  drop ;then  drop
-    >in ! ;
-: role@  ( - role ) me >class dup 0= abort" Error: Role is null." ;
-: rolefield>ofs  @ <role> >offsetTable + @ ;
-: rolefield  ( size - <name> )
-    create-superfield  0 , ( <- flag for actions )  
-    does>  rolefield>ofs role@ + ;
-: rolevar  ( - <name> )  cell rolefield ;
+( role fields )
+: role@  ( - role )
+    me >class dup 0= abort" Error: Role is null." ;
+    
+: rolefield>ofs  ( rolefield - offset )
+    @ <role> >offsetTable + @ ;
+
+: role's  ( - <field> adr )
+    s" role@" evaluate ' >body rolefield>ofs ?literal s" +" evaluate
+; immediate
+
+( actions )
 : is-action?  field.attributes @ ;
-: ?execute  dup if execute ;then drop ;
 
 : action   ( - <name> ) ( ??? - ??? )
-    rolevar <adr  true lastField field.attributes ! 
-    does> rolefield>ofs role@ + @ ?execute ;
+    var <adr
+    true lastField field.attributes ! 
+    does>  rolefield>ofs role@ + @ execute ;    
 
 : :to   ( roledef - <name> ... )
-    ' >body rolefield>ofs .s + :noname swap ! ;
+    ' >body rolefield>ofs + :noname swap ! ;
 
 : +exec  + @ execute ;
 
 : ->  ( roledef - <action> )
-    s" role@" evaluate  ' >body rolefield>ofs ?literal  s" +exec" evaluate ; immediate
+    ' >body rolefield>ofs ?literal  s" +exec" evaluate ; immediate
 
-: role  ( superclass - <name> )
-    ?update <role> inherit
-    lastClass to lastRole
+( create role )
+: ?update  ( - <name> )
+    >in @
+    defined if  >body to lastRole  r> drop drop ;then
+    >in ! ;
+
+: create-role  ( - <name> )
+    ?update  create  <role> static
+    me to lastRole
     ['] is-action? <role> >fields some>
-        field.offset @ 
         :noname swap
-        dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile "bridge"
-        lastRole + !  \ assign our "bridge" to the corresponding action
+            rolefield>ofs
+            dup basis + postpone literal s" @ ?execute ; " evaluate  \ compile "bridge" code
+            lastRole + !  \ assign our "bridge" to the corresponding action    
 ;
 
-( Inspection )
-: .role  ( obj - )  >class ?dup if peek else ." No role" then ;
-: .objlist  ( objlist - )  dup length 1i i. each> >{  cr ." ID: " id ?  ."  X/Y: " x 2?  } ;
+
+( inspection )
+: .role  ( obj - )
+    >class ?dup if peek else ." No role" then ;
+
+: .objlist  ( objlist - )
+    dup length 1i i. each>
+        >{  cr me h. ." ID: " id ?  ."  X/Y: " x 2?  } ;
 

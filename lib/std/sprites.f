@@ -1,6 +1,12 @@
-\ Sprite objects!
-\ - Render subimages or image regions
-\ - Define animation data and animate sprites
+( Sprite objects )
+
+\ animation format:
+\    region table,
+\    image,
+\    speed,
+\    <...frame indices...>,
+\    $DEADBEEF,
+\    offset to loop start, (from location of $DEADBEEF)
 
 defer animlooped ( - )  :make animlooped ;  \ define this in your app to do stuff every time an animation ends/loops
 
@@ -15,14 +21,14 @@ cell constant /frame
         \ index is fixed point
 
 extend-class <actor>
-    \ Transformation info; will be factored out into Ramen's core eventually
+    \ Transformation info
     var sx  var sy              \ scale
     var ang                     \ rotation
     var cx  var cy              \ center
     %color sizeof field tint
 
     \ animation state; all can be modified freely.  only required value is IMG.
-    var img <adr  \ image asset
+    var img <body \ image asset
     var anm <adr  \ animation base
     var spr       \ sprite index
     var rgntbl <adr \ region table
@@ -30,7 +36,7 @@ extend-class <actor>
     var anmctr    \ animation counter
 end-class
 
-<actor> template as
+<actor> prototype as
     1 1 sx 2!
     1 1 1 1 tint 4!
     1 anmspd !
@@ -60,17 +66,18 @@ end-class
 ;
 
 ( Animation )
-: frame  anm @ anmctr @ pfloor /frame * + ;
+: frame[]  ( anm - adr )
+    ( skip the settings ) 3 cells + anmctr @ pfloor /frame * + ;
 
 : curflip  ( index - index n )
-    anm @ if frame @ #3 and ;then  dup 3 and ;
+    anm @ if anm @ frame[] @ #3 and ;then  dup 3 and ;
 
 : ?regorg  ( index - index )  \ apply the region origin
     rgntbl @ -exit
     rgntbl @ over /region * + 4 cells + 2@ cx 2! ;
 
 : frame@  ( - n | 0 )  \ 0 if anm is null
-    anm @ dup if drop frame @ then dup spr ! ;
+    anm @ dup if frame[] @ then ;
 
 \ NSPRITE
 \ draw a sprite either from a subdivided image, animation, or image plus region table.
@@ -84,21 +91,23 @@ end-class
 : +frame  ( speed - )  \ Advance the animation
     ?dup -exit anm @ -exit 
     anmctr +!
-    \ looping:
-    frame @ $deadbeef = if  frame cell+ @ anmctr +!  animlooped  then
+    ( looping: )
+    frame@ $deadbeef = if  anm @ frame[] cell+ @ anmctr +!  animlooped  then
 ;
  
 : sprite  ( - )  \ draw sprite and advance the animation if any
     frame@ nsprite anmspd @ +frame ;
 
-\ Play an animation from the beginning
-: animate  ( anim - )  anm !  0 anmctr ! ;
+\ Play an animation from the beginning, using its settings
+: animate  ( anim - )
+    dup anm !  @+ rgntbl ! @+ img ! @+ anmspd !   drop  0 anmctr ! ;
     
-\ Define self-playing animations
-\ anim:  create self-playing animation
-: anim:  create  3,  here ;
-: autoanim:  ( regiontable|0 image speed - loopaddr )  ( - )  
-    anim: does>  @+ rgntbl ! @+ img ! @+ anmspd !  animate ;
+\ Define animations
+: anim:  ( regiontable image speed - <name> loopadr )
+    create  3,  here ;
+: autoanim:  ( regiontable image speed - <name> loopadr ) ( - )
+    anim: does> animate ;
+    
 : ,,  for  dup , loop drop  ;
 : loop:  drop here ;
 : ;anim  ( loopaddr - )  $deadbeef ,  here -  /frame i/ 1p 1 + , ;
