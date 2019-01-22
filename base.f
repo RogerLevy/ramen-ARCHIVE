@@ -20,7 +20,7 @@ include ramen/structs.f cr .( Loaded structs... ) \ "
 : <decimal is> bounds ?do i @ i. cell +loop ;
 : <int     is> bounds ?do i @ 1i i. cell +loop ;
 : <bin     is> dump ;
-: <skip    is> 2drop ." ..." space ;
+: <skip    is> nip ." ( " cell i/ i. ." )" space ;
 : <fixed   is> bounds ?do i @ dup if p. else i. then cell +loop ;
 : sfield  sfield <fixed ;
 : svar    svar   <fixed ;
