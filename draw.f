@@ -5,15 +5,6 @@ create fore 1e sf, 1e sf, 1e sf, 1e sf,
 : alpha  ( a )  1af fore 3 cells + ! ;
 : rgba   alpha rgb ;
 
-\ Bitmaps, backbuffer
-: onto>  ( bmp - <code> )
-    r>  al_get_target_bitmap >r  at@ 2>r
-        swap  onto call
-    2r> at  r> al_set_target_bitmap ;
-: movebmp  ( src sx sy w h )  write-src BLEND>  destxy 2af 0 al_draw_bitmap ;
-: clearbmp  ( r g b a bmp )  onto>  4af al_clear_to_color ;
-: backbuf  display al_get_backbuffer ;
-: backdrop  fore 4@ al_clear_to_color  white  0 0 at ;
 
 \ Predefined Colors; stored in fixed-point so you can modify them with `['] <color> >BODY`
 : 8>p  s>f 255e f/ f>p ;
@@ -34,6 +25,18 @@ bc b3 30 createcolor dyellow ae 3c 27 createcolor lgreen
 80 00 80 createcolor dmagenta ff ff 80 createcolor lyellow
 da 42 00 createcolor orange
 fixed
+
+
+\ Bitmaps, backbuffer
+: onto>  ( bmp - <code> )
+    r>  al_get_target_bitmap >r  at@ 2>r
+        swap  onto call
+    2r> at  r> al_set_target_bitmap ;
+: movebmp  ( src sx sy w h )  write-src BLEND>  destxy 2af 0 al_draw_bitmap ;
+: clearbmp  ( r g b a bmp )  onto>  4af al_clear_to_color ;
+: backbuf  display al_get_backbuffer ;
+: backdrop  fore 4@ al_clear_to_color  white  0 0 at ;
+
 
 
 \ Bitmap drawing words
@@ -83,8 +86,8 @@ variable fnt  default-font fnt !
 : rrectf  ( w h rx ry )  2>r destxy 2swap 2over 2+ 4af 2r> 2af fore 4@ al_draw_filled_rounded_rectangle ;
 : oval  ( rx ry ) destxy 2swap 4af fore 4@ hairline al_draw_ellipse ;
 : ovalf ( rx ry ) destxy 2swap 4af fore 4@ al_draw_filled_ellipse ;
-: circ  dup oval ;
-: circf  dup ovalf ;
+: circle  dup oval ;
+: circlef  dup ovalf ;
 
 create ftemp  2 cells allot
 : 2transform  ( x y transform - x y )  \ transform coordinates

@@ -10,10 +10,11 @@ create tiles #MAXTILES array,
 0 value tba  \ tileset base address
 [undefined] tilebuf [if] 1024 1024 buffer2d: tilebuf [then]
 
-\ tilemap vars
-var scrollx  var scrolly  \ used to define starting column and row!
-var w  var h              \ width & height in pixels
-var tbi                   \ tile base index
+extend-class <actor>
+    var scrollx  var scrolly  \ used to define starting column and row!
+    var w  var h              \ width & height in pixels
+    var tbi                   \ tile base index
+end-class
 
 \ general vars
 var onhitmap              \ XT ( tile - )
@@ -104,14 +105,14 @@ create tstep 16 , 16 ,
 \ They don't allocate any buffers for map data.
 \ A part of the singular buffer TILEBUF is located using the scrollx/scrolly values.
 
-: /tilemap
+: /tilemap  ( - )
     viewwh w 2!
     draw>
         tbi @ tilebase!
         at@ w 2@ clip>
             scrollx 2@  tstep 2@ scrollofs  tilebuf loc  tilebuf pitch@  tilemap ;
 
-: /isotilemap
+: /isotilemap  ( - )
     draw>
         tbi @ tilebase!
         scrollx 2@  tstep 2@ scrollofs  tilebuf loc  tilebuf pitch@  50 50 isotilemap ;

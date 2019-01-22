@@ -20,12 +20,13 @@ include ramen/structs.f cr .( Loaded structs... ) \ "
 : <decimal is> bounds ?do i @ i. cell +loop ;
 : <int     is> bounds ?do i @ 1i i. cell +loop ;
 : <bin     is> dump ;
-: <skip    is> 2drop ." ..." space ;
+: <skip    is> nip ." ( " cell i/ i. ." )" space ;
 : <fixed   is> bounds ?do i @ dup if p. else i. then cell +loop ;
 : sfield  sfield <fixed ;
 : svar    svar   <fixed ;
 : create-field  create-field <fixed ;
 include ramen/types.f   cr .( Loaded essential datatypes... ) \ "
+include ramen/superobj.f cr .( Loaded Super Objects extension... ) \ "
 
 \ Assets
 include ramen/assets.f  cr .( Loaded assets framework... ) \ "
@@ -35,28 +36,24 @@ include ramen/buffer.f  cr .( Loaded buffer module... ) \ "
 include ramen/sample.f  cr .( Loaded sample module... ) \ "
 
 \ Higher level stuff
-include ramen/obj.f     cr .( Loaded objects module... ) \ "
 include ramen/publish.f cr .( Loaded publish module... ) \ "
 include ramen/draw.f    cr .( Loaded draw module... ) \ "
 
-redef off  \ from here on fields only defined if not previously defined
-
-%object sizeof value baseline
-
 include ramen/default.f
 
+: panic ( - ) step> noop ;
+: void ( - ) panic show> ramenbg ;
+
 : empty
+    page
     ." [Empty]" cr
-    /stage -assets baseline %object struct.size !
-    s" default-step show-stage" evaluate empty
+    panic void empty
     0 to now
-    only forth definitions
 ;
 
 : now  now 1p ;
 
 : gild
-    %object sizeof to baseline     
     only forth definitions
     s" marker (empty)" evaluate
     ." [Gild] "
