@@ -14,7 +14,7 @@ also venery
     : struct  create %struct *struct /node ;
     
     : (.field)  ( adr size - )
-        bounds ?do i @ . cell +loop ;
+        bounds ?do i @ dup if . else i. then cell +loop ;
         
     : create-field  ( struct bytes - <name> )  ( - field )
         swap  >r
@@ -67,6 +67,9 @@ previous
 [else]
     : <adr  ;
 [then]
-[defined] f. [if] : <float is> drop sf@ f. ." e" ; [then]
+[defined] f. [if]
+    : <float is> drop sf@ f. ." e" ;
+[then]
 : <cstring  is> drop count type ;
 : <flag  is> drop @ if ." true " else ." false " then ;
+: <body  is> drop @ .name ;
