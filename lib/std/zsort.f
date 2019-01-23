@@ -2,7 +2,7 @@
 
 depend ramen/lib/rsort.f
 
-extend-class <actor>
+extend-class _actor
     var zdepth
 end-class
 

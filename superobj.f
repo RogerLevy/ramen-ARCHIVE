@@ -315,9 +315,9 @@ previous definitions
 
 ( Node class )
 
-%node venery:sizeof dup class <node>
+%node venery:sizeof dup class _node
 end-class
-:noname me /node ; <node> class.constructor !
+:noname me /node ; _node class.constructor !
 
 ( TEST )
 

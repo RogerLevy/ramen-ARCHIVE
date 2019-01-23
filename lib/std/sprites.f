@@ -20,7 +20,7 @@ cell constant /frame
         \ vflip = $2
         \ index is fixed point
 
-extend-class <actor>
+extend-class _actor
     \ Transformation info
     var sx  var sy              \ scale
     var ang                     \ rotation
@@ -36,7 +36,7 @@ extend-class <actor>
     var anmctr    \ animation counter
 end-class
 
-<actor> prototype as
+_actor prototype as
     1 1 sx 2!
     1 1 1 1 tint 4!
     1 anmspd !

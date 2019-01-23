@@ -11,7 +11,7 @@ defer tmxobj   ( object-nnn role - )
 defer tmximage ( object-nnn gid - )
 defer tmxrect  ( object-nnn w h - )
 
-extend-class <actor>
+extend-class _actor
     var gid
 end-class
 

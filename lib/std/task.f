@@ -8,12 +8,12 @@
 \  - Console output 
 \  (See below for a workaround)
 
-extend-class <actor>
+extend-class _actor
     var sp <adr  30 cells field ds <skip
     var rp <adr  60 cells field rs <skip
 end-class
 
-create main <actor> static \ proxy for the Forth data and return stacks
+create main _actor static \ proxy for the Forth data and return stacks
 
 : next-enabled  ( - flag )  begin  me node.next @ dup -exit as   en @ until  true ;
 : pause  ( - ) 

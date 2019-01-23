@@ -2,7 +2,7 @@
 \ pretty similar to the standard set,
 \ but omits Tiled support, collision grid, tilemap rendering, and some animation words, and adds a.f
 
-depend ramen/actor.f               cr .( Loaded objects module... ) \ "
+depend ramen/lib/std/actor.f       cr .( Loaded objects module... ) \ "
 depend ramen/lib/std/rangetools.f  cr .( Loaded rangetools module. ) \ "
 depend ramen/lib/std/task.f        cr .( Loaded task module. ) \ "
 depend ramen/lib/std/zsort.f       cr .( Loaded zsort module. ) \ "

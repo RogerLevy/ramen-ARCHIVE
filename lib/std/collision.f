@@ -9,7 +9,7 @@ depend ramen/lib/array2d.f
 
 [undefined] tstep [if] create tstep 16 , 16 , [then]
 
-extend-class <actor>
+extend-class _actor
     var mbw  var mbh   \ object collision box width,height
 end-class
 
