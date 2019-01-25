@@ -68,15 +68,15 @@ create attributes
 ( metrics )
 consolas char A chrw constant fw
 consolas chrh constant fh
-\ : rm  ( - col row ) margins x2@ fw /  displayw fw /  min ;
-\ : bm  ( - col row ) margins y2@ fh /  displayh 3 rows - fh /  min ;
-: rm  ( - col row ) displayw fw / pfloor ;
-: bm  ( - col row ) displayh fh / 3 - pfloor ;
+\ : right-margin  ( - n ) margins x2@ fw /  displayw fw /  min ;
+\ : bottom-margin  ( - n ) margins y2@ fh /  displayh 3 rows - fh /  min ;
+: #cols  ( - n ) displayw fw / pfloor ;
+: #rows    ( - n ) displayh fh / 3 - pfloor ;
 
 ( cursor )
 : ramen:get-xy  ( - #col #row )  cursor xy@ 2i ;
 : ramen:at-xy   ( #col #row - )  2p cursor xy! ;
-: ramen:get-size  ( - cols rows )  rm bm 2i ;
+: ramen:get-size  ( - cols rows )  #cols #rows   2i ;
 
 ( utils )
 : fillrect  ( w h - )  write-src blend>  rectf ;
@@ -91,12 +91,12 @@ consolas chrh constant fh
     0 cursor x!
     1 cursor y+!
     scrolling @ -exit
-    cursor y@ bm >= if  scroll  -1 cursor y+! then
+    cursor y@ #rows   >= if  scroll  -1 cursor y+! then
 ;
 : (emit)
     bufloc c!
     1 cursor x+!
-    cursor x@ rm >= if  ramen:cr  then
+    cursor x@ #cols >= if  ramen:cr  then
 ;
 decimal
     \ : ?b  output @ display <> if write-src else interp-src then ;
@@ -111,7 +111,7 @@ decimal
 fixed
 : ramen:attribute  1p 4 cells * attributes +  cursor colour  4 imove ;
 
-: ramen:page  bm #128 * +to >outbuf  0 0 cursor xy! ;
+: ramen:page  #rows   #128 * +to >outbuf  0 0 cursor xy! ;
 
 : zero  0 ;
 create ide-personality
@@ -155,6 +155,9 @@ create ide-personality
         [char] c of  copy   endof
     endcase ;
 
+: pageup  #rows #-128 * +to >outbuf ;
+: pagedown  #rows #128 * +to >outbuf ;
+
 : idekeys
     \ always:
 \    etype ALLEGRO_EVENT_DISPLAY_RESIZE =
@@ -194,6 +197,8 @@ create ide-personality
             <down> of  cancel  endof
             <enter> of  alt? ?exit  obey  endof
             <backspace> of  rub  endof
+            <pgup> of  pageup  endof
+            <pgdn> of  pagedown  endof
         endcase
     then
 ;
@@ -203,8 +208,8 @@ create ide-personality
   >outbuf  
   consolas font>
   at@ 2>r
-  bm for
-    dup rm 1i print
+  #rows   for
+    dup #cols 1i print
     0 fh +at
     #128 +
   loop
@@ -231,7 +236,7 @@ create ide-personality
 
 : +blinker repl? -exit  now 16 and -exit  s[ [char] _ c+s ]s ;
 : .cmdbuf  #0 attribute  consolas fnt !  white  cmdbuf count +blinker type ;
-: bar      displayw  displayh bm fh * -  dblue  fillrect ;
+: bar      displayw  displayh #rows   fh * -  dblue  fillrect ;
 : ?trans   repl? if 1 alpha else 0.8 alpha then ;
 : ?shad    repl? if 1 alpha else 0.25 alpha then ;
 
@@ -247,7 +252,7 @@ create ide-personality
    -4 4 +at  black ?shad  outbmp tblit
    2 -2 +at  white ?trans outbmp tblit
 ;    
-: bottom   0 bm fh * ;
+: bottom   0 #rows   fh * ;
 : .cmdline
     repl @ if bar then
       get-xy 2>r  >outbuf >r
