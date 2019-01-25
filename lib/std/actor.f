@@ -56,7 +56,8 @@ objlist stage  \ default object list
 : /stage  stage vacate  0 nextid ! ;
 
 ( static actors )
-: actor   ( parent - )  _actor static  me swap push  init  $fffffffe en ! ;
+: actor,  ( parent - )  _actor static  me swap push  init  $fffffffe en ! ;
+: actor   ( parent - <name> )  create  actor, ;
 
 ( role stuff )
 : role@  ( - role )
