@@ -51,7 +51,7 @@ previous
 : (.fields)
     each> ( adr field )
         normal         
-        dup body> >name count type space
+        dup body> >name ccount type space
         bright
         2dup dup field.size @ swap field.inspector @ execute
         field.size @ +   \ go to next field in the passed instance

@@ -14,13 +14,15 @@ define ideing
 include afkit/plat/win/clipb.f
 include ramen/ide/v2d.f
 
-0 value cmdbuf
+0 value outbuf
+0 value >outbuf
 
-create cursor 6 cells /allot
+create cursor 6 cells /allot   \ col, row, color (r,g,b,a)
 : colour 2 cells + ;
 variable scrolling  scrolling on
-create cmdbuf #256 /allot
-create history  #256 /allot
+create replbuf #1024 /allot
+create cmdbuf #1024 /allot
+create history #1024 /allot
 create ch  0 c, 0 c,
 create attributes
   1 , 1 , 1 , 1 ,      \ 0 white
@@ -44,111 +46,108 @@ create attributes
   1 , 1 , 1 , 1 ,      \ 0 white
   1 , 1 , 1 , 1 ,      \ 0 white
   1 , 1 , 1 , 1 ,      \ 0 white
-variable output   \ output bitmap
-0 value tempbmp
+\ 0 value tempbmp
 :make repl?  repl @ ;
 0 value outbmp
 
-\ --------------------------------------------------------------------------------------------------
-\ low-level stuff
-consolas char A chrw constant fw
-consolas chrh constant fh
-: cols  fw * ;
-: rows  fh * ;
-: rm  margins x2@  displayw min ;
-: bm  margins y2@  displayh 3 rows -  min ;
-: lm  margins x@  displayw >= if  0  else  margins x@  then ;
-: tm  margins y@  displayh >= if  0  else  margins y@  then ;
-: ?call  ?dup -exit call ;
+( command buffer )
 : recall  history count cmdbuf place ;
 : store   cmdbuf count dup if  history place  else  2drop  then ;
-: typechar  cmdbuf count + c!  #1 cmdbuf c+! ;
-: rub       cmdbuf c@  #1 -  0 max  cmdbuf c! ;
+: typechar  cmdbuf count + count!  #1 cmdbuf count+! ;
+: rub       cmdbuf count nip  #1 -  0 max  cmdbuf count! ;
 : paste     clipb@  cmdbuf append ;
 : copy      cmdbuf count clipb! ;
-: /margins  0 0 displaywh 3 rows - margins xywh! ;
+
+( init )
 : /output
     64 megs allocate throw to outbuf
-    native 2@ al_create_bitmap dup to outbmp output !
-    outbmp al_clone_bitmap to tempbmp ;
+    outbuf to >outbuf
+    native 2@ al_create_bitmap to outbmp  
+; \    outbmp al_clone_bitmap to tempbmp ;
 
-\ --------------------------------------------------------------------------------------------------
-\ Output words
-: ramen-get-xy  ( - #col #row )  cursor xy@  lm tm 2-  fw fh 2/ 2i ;
-: ramen-at-xy   ( #col #row - )  2p fw fh 2*  lm tm 2+  cursor xy! ;
-: fill  ( w h - )  write-src blend>  rectf ;
+( metrics )
+consolas char A chrw constant fw
+consolas chrh constant fh
+\ : rm  ( - col row ) margins x2@ fw /  displayw fw /  min ;
+\ : bm  ( - col row ) margins y2@ fh /  displayh 3 rows - fh /  min ;
+: rm  ( - col row ) displayw fw / pfloor ;
+: bm  ( - col row ) displayh fh / 3 - pfloor ;
+
+( cursor )
+: ramen:get-xy  ( - #col #row )  cursor xy@ 2i ;
+: ramen:at-xy   ( #col #row - )  2p cursor xy! ;
+: ramen:get-size  ( - cols rows )  rm bm 2i ;
+
+( utils )
+: fillrect  ( w h - )  write-src blend>  rectf ;
 : clear  ( w h bitmap - )  black 0 alpha  onto>  fill ;
-: outputw  rm lm - ;
-: outputh  bm tm - ;
-: ramen-get-size  ( - cols rows )  outputw outputh fw fh 2/ 2i ;
+
+( output )
+: bufloc  >outbuf cursor y@ #128 * + cursor x@ 1i + ;
 : scroll
-    write-src blend>
-    tempbmp onto>  0 0 at  output @ blit
-    output @ onto>  0 -1 rows at  tempbmp blit
-    -1 rows cursor y+!
+    #128 +to >outbuf
 ;
-: ramen-cr
-    lm cursor x!
-    1 rows cursor y+!
+: ramen:cr
+    0 cursor x!
+    1 cursor y+!
     scrolling @ -exit
-    cursor y@ 1 rows + bm >= if  scroll  then
+    cursor y@ bm >= if  scroll  -1 cursor y+! then
 ;
 : (emit)
-    ch c!
-    cursor xy@ at  ch #1 print
-    fw cursor x+!
-    cursor x@ 1 cols + rm >= if  ramen-cr  then
+    bufloc c!
+    1 cursor x+!
+    cursor x@ rm >= if  ramen:cr  then
 ;
 decimal
-    : ?b  output @ display <> if write-src else interp-src then ;
-    : at>  r>  at@ 2>r  call  2r> at ;
-    : ramen-emit   at>  output @ onto>  ?b blend>  consolas fnt !  cursor colour 4@ rgba  (emit) ;
-    : ramen-type   at>  output @ onto>  ?b blend>  consolas fnt !  cursor colour 4@ rgba  bounds  do  i c@ (emit)  loop ;
-    : ramen-?type  dup if type else 2drop then ;
+    \ : ?b  output @ display <> if write-src else interp-src then ;
+    \ : at>  r>  at@ 2>r  call  2r> at ;
+    : ramen:emit
+      ( at>  output @ onto>  ?b blend>  consolas fnt !  cursor colour 4@ rgba )
+      (emit) ;
+    : ramen:type
+      ( at>  output @ onto>  ?b blend>  consolas fnt !  cursor colour 4@ rgba )
+      bounds  do  i c@ (emit)  loop ;
+    : ramen:?type  dup if type else 2drop then ;
 fixed
-: ramen-attribute  1p 4 cells * attributes +  cursor colour  4 imove ;
+: ramen:attribute  1p 4 cells * attributes +  cursor colour  4 imove ;
 
-: wipe  0 0 0 0 output @ clearbmp  0 0 ramen-at-xy ;
+: ramen:page  bm #128 * +to >outbuf  0 0 cursor xy! ;
 
 : zero  0 ;
-
 create ide-personality
   4 cells , #19 , 0 , 0 ,
   ' noop , \ INVOKE    ( - )
   ' noop , \ REVOKE    ( - )
   ' noop , \ /INPUT    ( - )
-  ' ramen-emit , \ EMIT      ( char - )
-  ' ramen-type , \ TYPE      ( addr len - )
-  ' ramen-?type , \ ?TYPE     ( addr len - )
-  ' ramen-cr , \ CR        ( - )
-  ' wipe , \ PAGE      ( - )
-  ' ramen-attribute , \ ATTRIBUTE ( n - )
+  ' ramen:emit , \ EMIT      ( char - )
+  ' ramen:type , \ TYPE      ( addr len - )
+  ' ramen:?type , \ ?TYPE     ( addr len - )
+  ' ramen:cr , \ CR        ( - )
+  ' ramen:page , \ PAGE      ( - )
+  ' ramen:attribute , \ ATTRIBUTE ( n - )
   ' zero , \ KEY       ( - char )  \ not yet supported
   ' zero , \ KEY?      ( - flag )  \ not yet supported
   ' zero , \ EKEY      ( - echar ) \ not yet supported
   ' zero , \ EKEY?     ( - flag )  \ not yet supported
   ' zero , \ AKEY      ( - char )  \ not yet supported
   ' 2drop , \ PUSHTEXT  ( addr len - )  \ not yet supported
-  ' ramen-at-xy ,  \ AT-XY     ( x y - )
-  ' ramen-get-xy , \ GET-XY    ( - x y )
-  ' ramen-get-size , \ GET-SIZE  ( - x y )
+  ' ramen:at-xy ,  \ AT-XY     ( x y - )
+  ' ramen:get-xy , \ GET-XY    ( - x y )
+  ' ramen:get-size , \ GET-SIZE  ( - x y )
   ' drop , \ ACCEPT    ( addr u1 - u2)  \ not yet supported
 
-\ --------------------------------------------------------------------------------------------------
-\ Command management
-
+( command buffer stuff )
 : cancel   0 cmdbuf ! ;
 : echo     cursor colour 4@  #4 attribute  cr  cmdbuf count type space  cursor colour 4! ;
 : interp   cmdbuf count (evaluate) ;
 \ : ?errormsg  errormsg ; 
 \ ' ?errormsg is .catch
 : obey     store  echo  ['] interp catch ?.catch  0 cmdbuf ! ;
-: (rld)    cr ." Reloading... " s" rld" evaluate ;
 
-\ --------------------------------------------------------------------------------------------------
-\ Input handling
-
+( hotkey stuff )
 : toggle  dup @ not swap ! ;
+
+: (rld)    cr ." Reloading... " s" rld" evaluate ;
 
 : special  ( n - )
     case
@@ -158,14 +157,14 @@ create ide-personality
 
 : idekeys
     \ always:
-    etype ALLEGRO_EVENT_DISPLAY_RESIZE =
-        etype FULLSCREEN_EVENT =  or if  /margins  then
+\    etype ALLEGRO_EVENT_DISPLAY_RESIZE =
+\        etype FULLSCREEN_EVENT =  or if  /margins  then
 
     etype ALLEGRO_EVENT_KEY_DOWN = if
         keycode #37 < ?exit
         keycode case
             <tab> of  repl toggle  endof
-            <f2> of  wipe  endof
+            <f2> of  page  endof
             <f5> of
                 shift? if
                     s" main.f" included
@@ -199,8 +198,20 @@ create ide-personality
     then
 ;
 
-\ -----------------------------------------------------------------------------------
-\ Rendering
+( rendering )
+: draw-outbuf
+  >outbuf  
+  consolas font>
+  at@ 2>r
+  bm for
+    dup rm 1i print
+    0 fh +at
+    #128 +
+  loop
+  drop
+  2r> at
+;
+
 : ?...  dup 16 > if dup 16 - else 0 then ;
 : .S2 ( ? - ? )
     depth -exit
@@ -213,41 +224,49 @@ create ide-personality
       ."  F: "
       0  DO  I' I - #1 - FPICK N.  #1 +LOOP
     THEN ;
-  
+
 : ?.errs
     showerr  if  ." SHOWERR "  then
     steperr  if  ." STEPERR "  then ;
 
 : +blinker repl? -exit  now 16 and -exit  s[ [char] _ c+s ]s ;
 : .cmdbuf  #0 attribute  consolas fnt !  white  cmdbuf count +blinker type ;
-: bar      outputw  displayh bm -  dblue  fill ;
+: bar      displayw  displayh bm fh * -  dblue  fillrect ;
 : ?trans   repl? if 1 alpha else 0.8 alpha then ;
 : ?shad    repl? if 1 alpha else 0.25 alpha then ;
+
+: (preren)
+  outbmp onto> black 0 alpha backdrop white draw-outbuf
+;
 : .output
-    2 2 +at  black ?shad  outbmp tblit
-    -4 -4 +at  black ?shad  outbmp tblit
-    4 0 +at  black ?shad  outbmp tblit
-    -4 4 +at  black ?shad  outbmp tblit
-    2 -2 +at  white ?trans  outbmp tblit ;
-: bottom   lm bm ;
+  0 0 at
+  (preren)
+   2 2 +at  black ?shad   outbmp tblit
+   -4 -4 +at  black ?shad outbmp tblit
+   4 0 +at  black ?shad   outbmp tblit
+   -4 4 +at  black ?shad  outbmp tblit
+   2 -2 +at  white ?trans outbmp tblit
+;    
+: bottom   0 bm fh * ;
 : .cmdline
     repl @ if bar then
-    output @ >r  display output !
-        get-xy 2>r
-            at@ cursor xy!  scrolling off
-            ?.errs  .s2 
-            0 peny @ fnt @ chrh + at
-            repl @ if .cmdbuf then
-            scrolling on
-        2r> at-xy
-    r> output !
-    output @ onto> noop  \ fixes the lag bug...  why though?
+      get-xy 2>r  >outbuf >r
+          replbuf to >outbuf
+          replbuf #1024 erase
+          0 0 cursor xy!  scrolling off
+          ?.errs  .s2 
+          \ 0 peny @ fnt @ chrh + at
+          repl @ if .cmdbuf then
+          scrolling on
+          white draw-outbuf
+      r> to >outbuf  2r> at-xy
+\    output @ onto> noop  \ fixes the lag bug...  why though?
 ;
 
 \ --------------------------------------------------------------------------------------------------
 \ bring it all together
 
-\: /ide  >ide  /output  1 1 1 1 cursor colour 4!  /margins ;  \ don't remove the >IDE; fixes a bug
+: /ide  >ide  /output  1 1 1 1 cursor colour 4!  ( /margins ) ;  \ don't remove the >IDE; fixes a bug
 : /repl
     /s   \ clear the stack
     repl on
@@ -266,9 +285,10 @@ only forth definitions also ideing
 : rasa  ['] ide-system  is  ?system  ['] ide-overlay  is ?overlay ;
 : -ide  close-personality  HWND btf ;
 : ide  /repl  ['] ?rest catch ?.catch  go  -ide ;
-: wipe  page ;
 : /s  S0 @ SP! ;
 : quit  -ide cr quit ;
-only forth definitions
+: wipe  0 0 cursor xy!  outbuf to >outbuf  outbuf 64 megs erase ;
+
 /ide  rasa
+only forth definitions
 marker (empty) 
