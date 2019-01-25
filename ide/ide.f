@@ -2,6 +2,8 @@
 
 ide-loaded on
 
+
+
 s" ramen/ide/data/consolab.ttf" 26 ALLEGRO_TTF_NO_KERNING font: consolas
 : keycode  evt ALLEGRO_KEYBOARD_EVENT.keycode @ ;
 : unichar  evt ALLEGRO_KEYBOARD_EVENT.unichar @ ;
@@ -11,6 +13,8 @@ create margins 4 cells /allot
 define ideing
 include afkit/plat/win/clipb.f
 include ramen/ide/v2d.f
+
+0 value cmdbuf
 
 create cursor 6 cells /allot
 : colour 2 cells + ;
@@ -63,7 +67,10 @@ consolas chrh constant fh
 : paste     clipb@  cmdbuf append ;
 : copy      cmdbuf count clipb! ;
 : /margins  0 0 displaywh 3 rows - margins xywh! ;
-: /output  native 2@ al_create_bitmap dup to outbmp output !  outbmp al_clone_bitmap to tempbmp ;
+: /output
+    64 megs allocate throw to outbuf
+    native 2@ al_create_bitmap dup to outbmp output !
+    outbmp al_clone_bitmap to tempbmp ;
 
 \ --------------------------------------------------------------------------------------------------
 \ Output words
@@ -240,7 +247,7 @@ create ide-personality
 \ --------------------------------------------------------------------------------------------------
 \ bring it all together
 
-: /ide  >ide  /output  1 1 1 1 cursor colour 4!  /margins ;  \ don't remove the >IDE; fixes a bug
+\: /ide  >ide  /output  1 1 1 1 cursor colour 4!  /margins ;  \ don't remove the >IDE; fixes a bug
 : /repl
     /s   \ clear the stack
     repl on
@@ -257,12 +264,11 @@ only forth definitions also ideing
 : ide-system  idekeys ;
 : ide-overlay  0 0 at  unmount  repl @ if shade then  .output  bottom at .cmdline ;
 : rasa  ['] ide-system  is  ?system  ['] ide-overlay  is ?overlay ;
-/ide  rasa
 : -ide  close-personality  HWND btf ;
 : ide  /repl  ['] ?rest catch ?.catch  go  -ide ;
 : wipe  page ;
 : /s  S0 @ SP! ;
 : quit  -ide cr quit ;
 only forth definitions
-
+/ide  rasa
 marker (empty) 
