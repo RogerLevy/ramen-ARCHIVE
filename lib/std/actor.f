@@ -16,7 +16,7 @@ _node sizeof  #1024  class _actor
 end-class
 :noname me /node ; _actor class.constructor !
 
-: basis _role prototype ;  \ default rolevar and action values for all newly created roles
+: basis _role prototype ;  \ default role-var and action values for all newly created roles
 
 _actor prototype as
     en on
@@ -28,18 +28,15 @@ create objlists  _node static            \ parent of all objlists
 : >parent  ( node - node|0 ) node.parent @ ;
 : !id  1 nextid +!  nextid @ id ! ;
 : init  ( - )  !id ;
-: one ( parent - me=obj )  _actor static  me swap push  init  at@ x 2! ;
+: one ( parent - me=obj )  _actor dynamic  me swap push  init  at@ x 2! ;
 : ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;
 : dismiss ( - ) marked on ;
 : dynamic?  ( - flag ) en @ #1 and ;
 
-\ :noname  pool length 0= if here object, else pool pop then ; is new-node
-\ :noname  >{ en @ $fffffffe <> if me pool push else me ?remove then } ; is free-node
-\ :noname
-\     dup _actor is? not if destroy ;then
-\     >{ en @ $fffffffe <> if me ?remove me destroy else me ?remove then }
-\ ; is free-node
-:noname  ?remove ; is free-node
+:noname
+    dup _actor is? not if  destroy ;then
+    >{ en @ $fffffffe <> if  me ?remove  me destroy  else  me ?remove  then }
+; is free-node
 
 \ making stuff move and displaying them
 : ?call  ( adr - ) ?dup -exit call ;
@@ -79,8 +76,8 @@ objlist stage  \ default object list
     -exit
     does>  _role superfield>offset role@ + @ execute ;    
 
-: rolevar  _role fields: var ;
-: rolefield  _role fields: field ;
+: role-var  _role fields: var ;
+: role-field  _role fields: field ;
 
 
 : :to   ( roledef - <name> ... )

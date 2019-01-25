@@ -15,7 +15,7 @@ extend-class _actor
     var gid
 end-class
 
-\ rolevar recipe
+\ role-var recipe
 
 include ramen/lib/tiled/tmx.f
 also xmling also tmxing  

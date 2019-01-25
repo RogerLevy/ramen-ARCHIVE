@@ -203,13 +203,13 @@ create mestk  0 , 16 cells allot
 
 : dynamic  ( class - object )
 \    dup class.useHeap @ if
-        dup allocation allocate throw
+\        dup allocation allocate throw
 \    else
-\        dup class>pool length if
-\            dup class>pool pop
-\        else
-\            dup sizeof allotment 
-\        then
+        dup class>pool length if
+            dup class>pool pop
+        else
+            dup sizeof allotment 
+        then
 \    then
     /object
 ;
@@ -217,9 +217,9 @@ create mestk  0 , 16 cells allot
 : destroy  ( object - )
     dup >{ dup >class class.destructor @ execute } 
 \    dup >class class.useHeap @ if
-    free throw
+\    free throw
 \    else
-\        dup >class class>pool .s push
+        dup >class class>pool push
 \    then
 ;
 
@@ -260,19 +260,19 @@ create mestk  0 , 16 cells allot
     !prototype
 ;
 
-wordlist constant (knowing)
-(knowing) +order definitions
-    : ; postpone ; -converse set-current (knowing) -order ; immediate
+wordlist constant knowinging
+knowinging +order definitions
+    : ; postpone ; -converse set-current knowinging -order ; immediate
 previous definitions
 
-: knowing  ( class - current class )
+: (knowing)  ( class - current class )
     get-current swap dup converse ;
 
 : :private ( class - <name> <code> current class ; )
-    knowing definitions (knowing) +order : ;
+    (knowing) definitions knowinging +order : ;
 
 : :public ( class - <name> <code> ; )
-    knowing (knowing) +order : ;
+    (knowing) knowinging +order : ;
 
 : field  ( size - <name> ) ( object - object+n )
     ?superfield drop ;
@@ -305,13 +305,16 @@ previous definitions
                                        else drop then
         (peek) drop normal ;
 
-: extend-class ( - <name> )
-    ' >body to cc 
-;
-
 ( Utils )
 : .me   me peek ;
 : .class  >fields each> dup field.superfield @ .name   field.offset @ i.  cr ;
+
+: knowing ( - <class> )
+    only forth definitions ' >body converse ;
+
+: extend-class ( - <name> )
+    ' >body to cc 
+;
 
 ( Node class )
 
