@@ -27,6 +27,7 @@ create objlists  _node static            \ parent of all objlists
 : >last   ( node - node|0 ) node.last @ ;
 : >parent  ( node - node|0 ) node.parent @ ;
 : !id  1 nextid +!  nextid @ id ! ;
+: ?id  id $80000000 and 0= if id else 0 then ;
 : init  ( - )  !id ;
 : one ( parent - me=obj )  _actor dynamic  me swap push  init  at@ x 2! ;
 : ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;

@@ -47,7 +47,7 @@ include ramen/default.f
 : empty
     page
     ." [Empty]" cr
-    panic void empty
+    void empty
     0 to now
 ;
 

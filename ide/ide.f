@@ -155,8 +155,8 @@ create ide-personality
         [char] c of  copy   endof
     endcase ;
 
-: pageup  #rows #-128 * +to >outbuf ;
-: pagedown  #rows #128 * +to >outbuf ;
+: pageup  #rows 2 / pfloor #-128 * +to >outbuf ;
+: pagedown  #rows 2 / pfloor #128 * +to >outbuf ;
 
 : idekeys
     \ always:

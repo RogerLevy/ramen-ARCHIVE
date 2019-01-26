@@ -3,64 +3,65 @@ variable (length)
 
 \ call this before calling EASE
 : timespan  ( delay length - )  \ in frames
-   (length) ! (delay) ! ;
+    (length) ! (delay) ! ;
 
-objlist tweens
+create tweens _node static
 
-fields
-    struct %tween  %tween to fields  redef on
-    define tweening
+_node sizeof 0 class _tween
+    
+    \ to prevent tweening objects that don't exist anymore
+    var target <adr
+    var targetid
+    
+    var startval
+    var dest <adr
+    var delta
+    var ease <xt   
+    
+    var starttime  \ start time in frames
+    var endtime    \ end time in frames
+    
+    \        var storer <xt  
+    var in/out <xt  
+    
+    ( optional ease param )
+    var param
+end-class
 
-        %node @ %tween struct.size +!
 
-        \ to prevent tweening objects that don't exist anymore
-        var target <adr
-        var targetid
-
-        var dest <adr
-        var start
-        var change
-        var ease <xt   
-
-        var dawn  \ start time in frames
-        var sunset  \ end time in frames
-
-\        var storer <xt  
-        var in/out <xt  
-        
-        ( optional ease param )
-        var param
+define tweening
 
     : dismiss  me dup >parent remove ;
 
     : store  ( val - ) dest @ ! ; \ storer @ execute ;
 
-    : *tween  ( adr start end ease-xt in/out-xt - me=tween )
-        me  tweens one  dup target ! 's id @ targetid ! 
-        in/out !  ease !  over - change !  start !
-        dest !
-        (delay) @ now + dup dawn !
-            (length) @ + sunset !
-    ;
-    
-    : orphaned?  ( - flag ) target @ 's id @ targetid @ <>  ;
+    : target!   dup target ! >{ ?id ?dup if @ targetid ! then } ;
 
-    : +tween  ( adr start end ease-xt in/out-xt - )
-        now dawn @ < ?exit
-        orphaned? if dismiss ;then
-        start @  change @  now dawn @ - sunset @ dawn @ - / ( start change ratio )
-            in/out @ execute ease @ execute store
-        now sunset @ = if dismiss ;then
+    : *tween  ( adr start end ease-xt in/out-xt - me=tween )
+        me  _tween dynamic  me tweens push  target!
+        in/out !  ease !  over - delta !  startval !
+        dest !
+        (delay) @ now + dup starttime !
+            (length) @ + endtime !
     ;
     
-to fields  redef off
+    : orphaned?  ( - flag ) target @ >{ ?id dup if @ targetid @ <> then } ;
+
+    : +tween  ( - )
+        now starttime @ < ?exit
+        orphaned? if dismiss ;then
+        startval @  delta @  now starttime @ - endtime @ starttime @ - / ( start delta ratio )
+            in/out @ execute ease @ execute store
+        now endtime @ = if dismiss ;then
+    ;
+    
 
 only forth definitions also tweening
 
 : does-xt  does> @ ;
 : :xt  create does-xt here 0 , :noname swap ! ;
 
-\ ease modifiers ( start change ratio -- progress )
+\ ease modifiers ( start delta ratio -- progress )
 ' noop constant in
 :xt out
    negate 1.0 + >r swap over + swap negate r> ;
@@ -76,7 +77,7 @@ only forth definitions also tweening
 \ exponential formula: c * math.pow(2, 10 * (t / d - 1)) + b;
 \ quadratic formula: c * (t /= d) * t + b
 
-( startval ratio change -- val )
+( startval ratio delta -- val )
 :xt LINEAR        * + ;
 :xt EXPONENTIAL   1 - 10 * 2e 1pf f**  f>p * + ;
 :xt SINE          90 * 90 - sin 1 + * + ;
