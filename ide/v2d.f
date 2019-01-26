@@ -34,7 +34,7 @@
 : hypot  ( vec - n )  2@ 1pf fdup f* 1pf fdup f* f+ fsqrt f>p ;
 : dotp  ( vec1 vec2 - n ) swap 2@ rot 2@  -rot ( b.x a.y ) * >r  ( a.x b.y ) *  r> - ;
 : rotate  ( deg vec - )
-    swap  dup cos  swap sin  locals| sin(ang) cos(ang) v |
+    swap  >rad dup cos  swap sin  locals| sin(ang) cos(ang) v |
     v x@ cos(ang) * v y@ sin(ang) * -
     v x@ sin(ang) * v y@ cos(ang) * +  v 2! ;
 : scale  ( x y vec - )

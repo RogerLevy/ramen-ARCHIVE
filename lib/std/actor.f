@@ -13,6 +13,7 @@ _node sizeof  #1024  class _actor
     var x  var y  var vx  var vy
     var drw <adr
     var beha <adr
+    var dyn          \ is dynamic
 end-class
 :noname me /node ; _actor class.constructor !
 
@@ -29,14 +30,13 @@ create objlists  _node static            \ parent of all objlists
 : !id  1 nextid +!  nextid @ id ! ;
 : ?id  id $80000000 and 0= if id else 0 then ;
 : init  ( - )  !id ;
-: one ( parent - me=obj )  _actor dynamic  me swap push  init  at@ x 2! ;
+: one ( parent - me=obj )  _actor dynamic  me swap push  init  at@ x 2!  dyn on ;
 : ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;
 : dismiss ( - ) marked on ;
-: dynamic?  ( - flag ) en @ #1 and ;
 
 :noname
     dup _actor is? not if  destroy ;then
-    >{ en @ $fffffffe <> if  me ?remove  me destroy  else  me ?remove  then }
+    >{ dyn @ if  me ?remove  me destroy  else  me ?remove  then }
 ; is free-node
 
 \ making stuff move and displaying them
@@ -57,7 +57,7 @@ objlist stage  \ default object list
 : /stage  stage vacate  0 nextid ! ;
 
 ( static actors )
-: actor,  ( parent - )  _actor static  me swap push  init  $fffffffe en ! ;
+: actor,  ( parent - )  _actor static  me swap push  init ;
 : actor   ( parent - <name> )  create  actor, ;
 
 ( role stuff )
