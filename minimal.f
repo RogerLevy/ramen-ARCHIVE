@@ -12,8 +12,9 @@ depend ramen/lib/std/audio1.f      cr .( Loaded audio module. ) \ "
 depend ramen/lib/std/sprites.f     cr .( Loaded sprites module. ) \ "
 depend ramen/lib/min/tile.f        cr .( Loaded tile module. ) \ "
 depend ramen/lib/std/collision.f   cr .( Loaded tilemap collision module. ) \ "
-depend ramen/lib/array2d.f
-depend ramen/lib/buffer2d.f
+depend ramen/lib/utils.f           cr .( Loaded utils... ) \ "
+depend ramen/lib/array2d.f         cr .( Loaded array2d... ) \ "
+depend ramen/lib/buffer2d.f        cr .( Loaded buffer2d... ) \ "
 
 : show-stage  ( - ) show> ramenbg mount stage draws ;
 show-stage 
