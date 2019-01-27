@@ -1,49 +1,16 @@
-
-\ Multitasking for game objects
-
-\ The following words should only be used within a task:
-\  PAUSE END FRAMES SECS
-\ The following words should never be used within a task:
-\  - External calls
-\  - Console output 
-\  (See below for a workaround)
+( Multitasking )
 
 extend-class _actor
-    var sp <adr  30 cells field ds <skip
-    var rp <adr  60 cells field rs <skip
+    var ddepth
+    var rdepth
+    var old-ddepth
+    var old-rdepth
+    30 cells field ds <skip
+    60 cells field rs <skip
 end-class
 
 create main _actor static \ proxy for the Forth data and return stacks
 
-: next-enabled  ( - flag )  begin  me node.next @ dup -exit   as   en @ until  true ;
-: pause  ( - ) 
-    dup \ ensure TOS is on stack
-    sp@ sp !
-    rp@ rp !
-    \ look for next task.  rp = 0 means no task.  end of list = jump to main task and resume that
-    begin  next-enabled if  rp @  else  main dup as  then  until
-    \ restore state
-    rp @ rp!
-    sp @ sp!
-    drop \ ensure TOS is in TOS register
-;
-: pauses  ( n - ) for  pause  loop ;
-: seconds  ( n - n ) fps * ;  \ not meant for precision timing
-: dally  ( n - ) seconds pauses ;
-
-\ external-calls facility - say "<val> ['] word later" to schedule a word that calls an external library.
-\ you can pass a single parameter to each call, such as an object or an asset.
-\ NOTE: you don't have to consume the parameter, and as a bonus, you can leave as much as you want
-\ on the stack.
-
-create queue 1000 stack,
-: later  ( val xt - )  swap queue push queue push ;
-: arbitrate
-    {
-        queue length for  sp@  i 2 * queue []  swap >r  2@ execute  r> sp!  loop
-        queue vacate
-    }
-;
 : running?     sp@ ds >=  sp@ rs <= and ;
 : (halt)    begin pause again ;
 
@@ -52,7 +19,7 @@ decimal
         \ running? if ds 27 cells + sp!  r>  rs 58 cells + rp!  >r noop exit then
         ds 28 cells + !  ds 27 cells + sp !  r> rs 58 cells + !  rs 58 cells + rp !
         ['] (halt) >code rs 59 cells + !
-\        running? if pause then
+        \ running? if pause then
     ;
     : perform  ( xt n obj - )
         >{
@@ -63,7 +30,26 @@ decimal
         rs 58 cells + rp !
         }
     ;
+
+    : next-enabled  ( - flag )  begin  me node.next @ dup -exit   as   en @ until  true ;
+    : pause  ( - ) 
+        sp@ ds sp@ s0 - dup ddepth ! cells move
+        rp@ rs rp@ r0 - dup rdepth ! cells move
+        
+        
+        
+        \ look for next task.  rp = 0 means no task.  end of list = jump to main task and resume that
+        begin  next-enabled if  rp @  else  main dup as  then  until
+        \ restore state
+        rp @ rp!
+        sp @ sp!
+        drop \ ensure TOS is in TOS register
+    ;
 fixed
+
+: pauses  ( n - ) for  pause  loop ;
+: seconds  ( n - n ) fps * ;  \ not meant for precision timing
+: dally  ( n - ) seconds pauses ;
 
 : halt   0 rp !  running? if pause then ;
 : end    dismiss halt ;
