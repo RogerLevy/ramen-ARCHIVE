@@ -42,8 +42,8 @@ also venery
         %class %node sembed class>node   
         %class svar class.size           <int
         %class svar class.wordlist       <hex
-        %class svar class.prototype       <adr
-        %class svar class.prototypeSize   <adr
+        %class svar class.prototype      <adr
+        %class svar class.prototypeSize  <adr
         %class svar class.maxSize        <int
         %class svar class.useHeap
         %class svar class.constructor    <xt
