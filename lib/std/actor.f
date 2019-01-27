@@ -27,10 +27,10 @@ create objlists  _node static            \ parent of all objlists
 : >first  ( node - node|0 ) node.first @ ;
 : >last   ( node - node|0 ) node.last @ ;
 : >parent  ( node - node|0 ) node.parent @ ;
-: !id  1 nextid +!  nextid @ id ! ;
 : ?id  id $80000000 and 0= if id else 0 then ;
-: init  ( - )  !id ;
-: one ( parent - me=obj )  _actor dynamic  me swap push  init  at@ x 2!  dyn on ;
+: !id  1 nextid +!  nextid @ id ! ;
+: /actor  ( - )  !id ;
+: one ( parent - me=obj )  _actor dynamic  me swap push  /actor  at@ x 2!  dyn on ;
 : ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;
 : dismiss ( - ) marked on ;
 
@@ -60,7 +60,7 @@ objlist stage  \ default object list
 : /stage  stage vacate  0 nextid ! ;
 
 ( static actors )
-: actor,  ( parent - )  _actor static  me swap push  init ;
+: actor,  ( parent - )  _actor static  me swap push  /actor ;
 : actor   ( parent - <name> )  create  actor, ;
 
 ( role stuff )
