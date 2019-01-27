@@ -15,13 +15,12 @@ end-class
 
 create main _actor static \ proxy for the Forth data and return stacks
 
-: next-enabled  ( - flag )  begin  me node.next @ dup -exit as   en @ until  true ;
+: next-enabled  ( - flag )  begin  me node.next @ dup -exit   as   en @ until  true ;
 : pause  ( - ) 
-    \ save state
     dup \ ensure TOS is on stack
     sp@ sp !
     rp@ rp !
-    \ look for next task.  rp=0 means no task.  end of list = jump to main task and resume that
+    \ look for next task.  rp = 0 means no task.  end of list = jump to main task and resume that
     begin  next-enabled if  rp @  else  main dup as  then  until
     \ restore state
     rp @ rp!
@@ -66,7 +65,7 @@ decimal
     ;
 fixed
 
-: halt   running? not if 0 perform> then begin pause again ;
+: halt   0 rp !  running? if pause then ;
 : end    dismiss halt ;
 : ?end   -exit end ;
 
@@ -79,8 +78,10 @@ fixed
     sp@ main 's sp !
     rp@ main 's rp !
     main >{
-        ['] pause catch if
-            cr ." A task crashed. Halting it."  halt
+        ['] pause catch ?dup if
+            cr ." A task crashed. Halting it."
+            \ 0 rp !  \ don't call HALT, we don't want PAUSE
+            throw
         then
     }
     drop
