@@ -9,14 +9,14 @@
 \  (See below for a workaround)
 
 extend-class _actor
-    var sp <adr  var (ds) <adr
+    var sp <adr  16 cells field ds
     var rp <adr  var (rs) <adr
     var (task)  <flag
 end-class
 
-: ds  (ds) @ ;
+\ : ds  (ds) @ ;
 : rs  (rs) @ ;
-: dtop  ds 8 kbytes + ;
+: dtop  ds 16 cells + ;
 : rtop  rs 8 kbytes + ;
 
 create main _actor static \ proxy for the Forth data and return stacks
@@ -45,7 +45,7 @@ create main _actor static \ proxy for the Forth data and return stacks
 
 decimal
     : *taskstack  8 kbytes allocate throw ;
-    : ?stacks  (ds) @ ?exit  *taskstack (ds) !  *taskstack (rs) ! ;
+    : ?stacks  (rs) @ ?exit  *taskstack (rs) ! ;
     : perform> ( n - <code> )
         \ running? if ds 27 cells + sp!  r>  rs 58 cells + rp!  >r noop exit then
         ?stacks
@@ -85,14 +85,14 @@ fixed
     drop
 ;
 
-: free-stacks  ( - )
-    (ds) @ -exit  (ds) @ free throw  (rs) @ free throw ;
+: free-task  ( - )
+    (rs) @ -exit  (rs) @ free throw ;
 
 
 : task:free-node
     dup _actor is? not if  destroy ;then
     dup actor:free-node
-    >{ free-stacks }
+    >{ free-task }
 ;    
 
 ' task:free-node is free-node
