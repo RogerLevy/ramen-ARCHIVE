@@ -36,7 +36,10 @@ create objlists  _node static            \ parent of all objlists
 
 :noname
     dup _actor is? not if  destroy ;then
-    >{ dyn @ if  me ?remove  me destroy  else  me ?remove  then }
+    >{
+        dyn @ if  me ?remove  me destroy  else  me ?remove  then
+        id off  \ necessary for breaking connections
+    }
 ; is free-node
 
 \ making stuff move and displaying them
