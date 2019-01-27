@@ -32,18 +32,25 @@ decimal
     ;
 
     : next-enabled  ( - flag )  begin  me node.next @ dup -exit   as   en @ until  true ;
-    : pause  ( - ) 
-        sp@ ds sp@ s0 - dup ddepth ! cells move
-        rp@ rs rp@ r0 - dup rdepth ! cells move
+    : pause  ( - )
+        dup
+        sp@ ds sp@ s0 - old-ddepth @ - dup ddepth ! cells move
+        rp@ rs rp@ r0 - old-rdepth @ - dup rdepth ! cells move
         
         
         
         \ look for next task.  rp = 0 means no task.  end of list = jump to main task and resume that
         begin  next-enabled if  rp @  else  main dup as  then  until
-        \ restore state
-        rp @ rp!
-        sp @ sp!
-        drop \ ensure TOS is in TOS register
+        
+        
+        sp@ ddepth @ cells - sp!
+        rp@ rdepth @ cells - rp!
+        
+        
+        
+        
+        drop
+        
     ;
 fixed
 
