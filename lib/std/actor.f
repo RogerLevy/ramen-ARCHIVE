@@ -1,7 +1,7 @@
 0 value lastRole \ used by map loaders (when loading objects scripts)
 variable nextid
 
-0  4 kb  class _role
+0  4 kbytes  class _role
 end-class
 
 _node sizeof  #1024  class _actor

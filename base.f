@@ -63,4 +63,4 @@ create ldr 64 allot
 : rld  ." [Reload] " ldr count included ;
 : ld   bl parse s" .f" strjoin 2dup 2>r ['] included catch 2r> ldr place throw ;
 
-gild
+gild empty
