@@ -34,13 +34,15 @@ create objlists  _node static            \ parent of all objlists
 : ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;
 : dismiss ( - ) marked on ;
 
-:noname
+: actor:free-node
     dup _actor is? not if  destroy ;then
     >{
         dyn @ if  me ?remove  me destroy  else  me ?remove  then
         id off  \ necessary for breaking connections
     }
-; is free-node
+;    
+    
+' actor:free-node is free-node
 
 \ making stuff move and displaying them
 : ?call  ( adr - ) ?dup -exit call ;
