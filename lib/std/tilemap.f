@@ -8,7 +8,7 @@ depend ramen/lib/stride2d.f
 [undefined] #MAXTILES [if] 16384 constant #MAXTILES [then]
 create tiles #MAXTILES array,
 0 value tba  \ tileset base address
-[undefined] tilebuf [if] 1024 1024 buffer2d: tilebuf [then]
+[undefined] tilebuf [if] 1024 1024 buffer2d tilebuf [then]
 
 extend-class _actor
     var scrollx  var scrolly  \ used to define starting column and row!

@@ -1,19 +1,27 @@
 \ Asset manager, "toolbox" version; includes standard synchronous loader
 
-cell #256 + constant /assetheader
+cell #256 + cell+ constant /assetheader
 defer initdata ( - )
 
 \ ------------------------------------------------------------------------------
 \ Asset framework
 
 create assets 1000 *stack drop
+variable permanent   permanent on
+variable permanents
+: ?permanent  permanent @ -exit   nip ['] drop swap  1 permanents +! ;
 
-: register ( reloader-xt asset - ) dup assets push  ! ;
-: -assets ( - ) assets vacate ;
-: srcfile ( - ) cell+ ;
+: register ( reloader-xt unloader-xt asset - ) ?permanent  dup assets push  2! ;
 
-\ The first cell in every asset is a reloader XT.
+
+\ structure:  reloader , unloader , filepath ... 
 : reload  ( asset - )  ( asset - )  dup @ execute ;
+: unload  ( asset - )  ( asset - )  dup cell+ @ execute ;
+: srcfile ( - ) cell+ cell+ ;
+
+
+: -assets ( - )  ['] unload assets each   permanents @ assets truncate ;
+
 
 \ Note: Don't worry that the paths during development are absolute;
 \ in publish.f, all asset paths are "normalized".
@@ -26,7 +34,8 @@ create assets 1000 *stack drop
 : defasset  ( - <name> )  struct  /assetheader lastbody struct.size ! ;
 : .asset  ( asset - ) srcfile count dup if  type  else  2drop  then ;
 : .assets  ( - ) assets each> cr .asset ;
-: loadtrig  ( xt - )  here swap , assets push ;
+
+: loadtrig  ( xt - )  here assets push   ,  ['] drop , ;
 
 \ ------------------------------------------------------------------------------
 \ Standard synchronous loader

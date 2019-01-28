@@ -46,8 +46,10 @@ include ramen/default.f
 : empty
     page
     ." [Empty]" cr
-    void empty
+    void
+    -assets
     0 to now
+    empty
 ;
 
 : now  now 1p ;
@@ -58,8 +60,8 @@ include ramen/default.f
     ." [Gild] "
 ;
 
-create ldr 64 allot
-: rld  ." [Reload] " ldr count included ;
+create ldr 256 /allot
+: rld  ldr count nip -exit ldr count included ;
 : ld   bl parse s" .f" strjoin 2dup 2>r ['] included catch 2r> ldr place throw ;
 
 gild void

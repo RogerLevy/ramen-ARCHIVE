@@ -5,14 +5,17 @@ decimal
     >r  r@ array2d.cols 2@ 2i i* cells allocate throw  r> array2d.data ! ;
 : recreate-buffer2d  ( asset - )
     /assetheader + init-buffer2d ;
+: unload-buffer2d
+    /assetheader + array2d.data @ free throw ;
+
 fixed
 
 : init-buffer2d  ( cols rows buffer2d - )
     >r udup r@ array2d.cols 2!
     cells r@ array2d.pitch !
-    ['] recreate-buffer2d r@ /assetheader - register
+    ['] recreate-buffer2d ['] unload-buffer2d r@  /assetheader - register
     r> init-buffer2d ;
 
-: buffer2d:   ( cols rows - <name> )  ( - array2d )
+: buffer2d   ( cols rows - <name> )  ( - array2d )
     create  /assetheader /allot  %array2d sizeof allotment  init-buffer2d
     does>  /assetheader + ; 

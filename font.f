@@ -7,9 +7,13 @@ defasset font
 : reload-font  ( font - )
     >r  r@ srcfile count findfile zstring  r@ font.size @ 1i  r@ font.flags @  al_load_font  r> font.fnt ! ;
 
+: unload-font  ( font - )
+    font.fnt @ al_destroy_font ;
+
 : init-font  ( path c size flags font - )
     >r  r@ font.flags !  r@ font.size !
-    r@ srcfile place  ['] reload-font r@ register  r> reload-font ;
+    r@ srcfile place  ['] reload-font ['] unload-font r@ register
+    r> reload-font ;
 
 : font:  ( path c size flags - <name> )
     create  font sizeof allotment  init-font ;
