@@ -54,22 +54,20 @@ main to task
 decimal
     : *taskstack  8 kbytes allocate throw ;
     : ?stacks  (rs) @ ?exit  *taskstack (rs) ! ;
-    : perform> ( n - <code> )
-        \ running? if ds 27 cells + sp!  r>  rs 58 cells + rp!  >r noop exit then
+    : perform  ( n xt - )
         ?stacks
+        \ running? if ds 27 cells + sp!  r>  rs 58 cells + rp!  >r noop exit then
         (task) on
-        dtop cell- !  dtop cell- cell- sp !  r> rtop cell- cell- !  rtop cell- cell- rp !
+        >code rtop cell- cell- !
+        dtop cell- !
+        dtop cell- cell- sp !
         ['] halt >code rtop cell- !
+        rtop cell- cell- rp !
 \        running? if pause then
     ;
-\    : perform  ( xt n - )
-\        ?stacks
-\        ds 28 cells + !
-\        ds 27 cells + sp !
-\        >code rs 58 cells + !
-\        ['] (halt) >code rs 59 cells + !
-\        rs 58 cells + rp !
-\    ;
+    : perform> ( n - <code> )
+        r> code> perform ;
+
 fixed
 
 0 value (xt)
