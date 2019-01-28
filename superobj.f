@@ -213,8 +213,11 @@ create mestk  0 , 16 cells allot
     /object
 ;
 
+: destruct  ( object - )
+    >{ me >class class.destructor @ execute } ;
+
 : destroy  ( object - )
-    dup >{ dup >class class.destructor @ execute } 
+    dup destruct
 \    dup >class class.useHeap @ if
 \    free throw
 \    else
