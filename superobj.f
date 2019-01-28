@@ -110,7 +110,6 @@ create mestk  0 , 16 cells allot
 
 : superfield.offset ; immediate
 
-: does-superfield  does> superfield.offset @ offsetTable + @ me + ;
 
 : 's  ( object - <field> adr )
     state @ if
@@ -122,7 +121,13 @@ create mestk  0 , 16 cells allot
     then
 ; immediate
 
-: field-exists  >in @ defined if >body cell+ @ $12345678 = else drop 0 then swap >in ! ;
+: field-exists
+    >in @ >r
+    defined if
+        >body cell+ @ $12345678 =
+    else
+        drop 0 then
+    r> >in ! ;
 
 : (.field)  ( adr size - )
     bounds ?do i @ dup if . else i. then cell +loop ;
@@ -148,6 +153,7 @@ create mestk  0 , 16 cells allot
         cc class>offsetTable
             (superfield) superfield.offset @ ( the offset slot offset ) + !
     
+    
     %field old-sizeof allotment >r
         r@ to lastfield  \ needed for defining inspectors
         r@ /node
@@ -161,13 +167,14 @@ create mestk  0 , 16 cells allot
     (size) cc class.size +!
 ;
 
-: create-superfield  ( size - <name> )  ( - adr )
+: create-superfield  ( - <name> )  ( - adr )
     >in @ create >in !
-    nextOffsetSlot , $12345678 , does-superfield
-    cell +to nextOffsetSlot
+    nextOffsetSlot , $12345678 ,
+    nextOffsetSlot cell+ #4095 and to nextOffsetSlot
+    does> superfield.offset @ offsetTable + @ me + 
 ;
 
-: ?superfield  ( size - <name> flag )  ( - adr )
+: ?superfield  ( size - <name> flag )  ( - adr )    
     field-exists not if
         ( not defined; define the superfield word )
         create-superfield
@@ -324,9 +331,11 @@ previous definitions
 end-class
 :noname me /node ; _node class.constructor !
 
+
 ( TEST )
 
 marker dispose
 : test  not abort" Super Objects unit test fail" ;
 
 dispose
+

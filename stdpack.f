@@ -1,6 +1,5 @@
 \ Standard library set
-
-depend ramen/lib/std/actor.f       cr .( Loaded objects module... ) \ "
+depend ramen/lib/std/actor.f       cr .( Loaded actors module... ) \ "
 depend ramen/lib/std/rangetools.f  cr .( Loaded rangetools module. ) \ "
 depend ramen/lib/std/task.f        cr .( Loaded task module. ) \ "
 depend ramen/lib/std/cgrid.f       cr .( Loaded collision grid module. ) \ "
