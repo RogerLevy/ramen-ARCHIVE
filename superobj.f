@@ -27,7 +27,6 @@
 
 \ 0 value me  \ defined in piston.f
 
-0 value offsetTable
 0 value cc \ current Class
 0 value nextOffsetSlot \ next offset in offset table
 0 value (superfield)  \ temporary variable
@@ -306,7 +305,7 @@ previous definitions
         (peek) drop normal ;
 
 ( Utils )
-: .me   me peek ;
+: .me   cr me peek ;
 : .class  >fields each> dup field.superfield @ .name   field.offset @ i.  cr ;
 
 : knowing ( - <class> )

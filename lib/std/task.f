@@ -8,18 +8,25 @@
 \  - Console output 
 \  (See below for a workaround)
 
+0 value task  \ current task
+
 extend-class _actor
-    var sp <adr  16 cells field ds
+    var sp <adr  96 cells field ds <skip
     var rp <adr  var (rs) <adr
     var (task)  <flag
 end-class
 
-\ : ds  (ds) @ ;
+
+
 : rs  (rs) @ ;
-: dtop  ds 16 cells + ;
+: dtop  ds 96 cells + ;
 : rtop  rs 8 kbytes + ;
 
+: .ds  's ds 96 cells idump ;
+
+
 create main _actor static \ proxy for the Forth data and return stacks
+main to task
 
 : (more)  ( - flag )
     begin  me node.next @ dup -exit   as   en @ until  true ;
@@ -30,6 +37,7 @@ create main _actor static \ proxy for the Forth data and return stacks
     rp@ rp !
     \ look for next task.  end of list = jump to main task and resume that
     begin  (more) if  (task) @  else  main dup as  then  until
+    me to task
     \ restore state
     rp @ rp!
     sp @ sp!
@@ -64,6 +72,20 @@ decimal
 \    ;
 fixed
 
+0 value (xt)
+0 value (sp)
+: farcall ( val xt - )  ( val - )
+    task main = if sp@ to (sp) execute (sp) sp! drop drop ;then
+    to (xt)
+    sp@ sp !
+    rp@ rp !
+    main 's sp @ sp!
+    main 's rp @ rp!
+    { (xt) execute }
+    rp @ rp!
+    sp @ sp!
+    drop
+;
 
 
 \ pulse the multitasker.
@@ -78,11 +100,15 @@ fixed
         begin
             ['] pause catch if
                 cr ." A task crashed. Halting it."
+                dtop cell- sp! .me
+                cr ." Data stack: "
+                ds 128 cells idump
                 (task) off  \ don't call HALT, we don't want PAUSE
             then
         me node.next @ 0= me main = or until
     }
     drop
+    main to task
 ;
 
 : free-task  ( - )
@@ -93,6 +119,11 @@ fixed
     dup _actor is? not if  destroy ;then
     dup actor:free-node
     >{ free-task }
-;    
+;
+
+
+\ : empty  sp@ main 's sp !  rp@ main 's rp !  empty ;
+sp@ main 's sp !  rp@ main 's rp !
 
 ' task:free-node is free-node
+

@@ -68,7 +68,7 @@ consolas char A chrw constant fw
 consolas chrh constant fh
 \ : right-margin  ( - n ) margins x2@ fw /  displayw fw /  min ;
 \ : bottom-margin  ( - n ) margins y2@ fh /  displayh 3 rows - fh /  min ;
-: #cols  ( - n ) displayw fw / pfloor ;
+: #cols  ( - n ) displayw fw / pfloor 128 min ;
 : #rows    ( - n ) displayh fh / 3 - pfloor ;
 
 ( cursor )
@@ -209,7 +209,7 @@ create ide-personality
   consolas font>
   at@ 2>r
   #rows   for
-    dup #cols 1i print
+    dup #cols 1i #128 min print
     0 fh +at
     #128 +
   loop

@@ -4,7 +4,7 @@ variable nextid
 0  4 kbytes  class _role
 end-class
 
-_node sizeof  #1024  class _actor
+_node sizeof  512 cells  class _actor
     var role <body
     var id 
     var en <hex
