@@ -61,7 +61,21 @@ include ramen/default.f
 ;
 
 create ldr 256 /allot
+create project 256 /allot
+
+: project:  ( -- <path/> ) bl parse slashes project place ;  \ must have trailing slash
+: .project  project count type ;
 : rld  ldr count nip -exit ldr count included ;
-: ld   bl parse s" .f" strjoin 2dup 2>r ['] included catch 2r> ldr place throw ;
+: ?project  project count nip ?exit  ldr count -filename project place ;
+: ld
+    bl parse s" .f" strjoin 2>r
+        2r@ file-exists not if
+            project count 2r> -path strjoin 2>r
+        then
+        2r@ ['] included catch
+        2r@ ldr place
+            dup 0= if  ?project  then
+            throw 
+    2r> 2drop ;
 
 gild void
