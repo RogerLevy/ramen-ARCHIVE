@@ -31,13 +31,13 @@ create objlists  _node static            \ parent of all objlists
 : !id  1 nextid +!  nextid @ id ! ;
 : /actor  ( - )  !id ;
 : one ( parent - me=obj )  _actor dynamic  me swap push  /actor  at@ x 2!  dyn on ;
-: ?remove  ( obj - ) dup >parent dup if remove else drop drop then ;
+: detach  ( obj - ) dup >parent dup if remove else drop drop then ;
 : dismiss ( - ) marked on ;
 
 : actor:free-node
     dup _actor is? not if  destroy ;then
     >{
-        dyn @ if  me ?remove  me destroy  else  me ?remove  then
+        dyn @ if  me detach  me destroy  else  me detach  then
         id off  \ necessary for breaking connections
     }
 ;    
