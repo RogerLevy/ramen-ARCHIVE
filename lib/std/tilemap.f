@@ -18,9 +18,6 @@ extend-class _actor
     var tbi                   \ tile base index
 end-class
 
-\ general vars
-var onhitmap              \ XT ( tile - )
-
 \ -------------------------------------------------------------------------------------------------
 \ Break up a bitmap into tiles that can be used by the Tiled module
 
@@ -121,6 +118,3 @@ create tstep 16 , 16 ,
 
 \ Tilemap collision
 include ramen/lib/std/collision.f
-
-: onhitmap>  ( - <code> )  ( tilecell - )
-    r> code> onhitmap ! ;  

@@ -2,8 +2,6 @@
 var scrollx  var scrolly  \ used to define starting column and row!
 var tbi                   \ tile base index
 
-( collision handler )
-var onhitmap              \ XT ( tile - )
 
 ( main 1024x1024 tile buffer )
 1024 1024 buffer2d: tilebuf 
