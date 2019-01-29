@@ -134,9 +134,12 @@ also xmling also tmxing
     \     else drop then
     ; 
 
-: -bitmaps  bitmaps length for  bitmaps pop -bmp  loop ;
+: -bitmaps  ( - )
+    bitmaps length for  bitmaps pop -bmp  loop ;
 
 : open-map  ( path c - )
     close-tmx  /roles  open-tmx ;
+
+:noname bitmaps vacate ; +loadtrig 
 
 only forth definitions

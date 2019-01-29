@@ -3,7 +3,7 @@ true constant ramen
 include afkit/afkit.f  \ AllegroForthKit
 #1 #5 #8 [afkit] [checkver]
 
-\ Low-level
+( Low-level )
 0 value (count)
 0 value (ts)
 0 value (bm)
@@ -29,14 +29,17 @@ include ramen/structs.f cr .( Loaded structs... ) \ "
 include ramen/types.f   cr .( Loaded essential datatypes... ) \ "
 include ramen/superobj.f cr .( Loaded Super Objects extension... ) \ "
 
-\ Assets
+( Assets )
 include ramen/assets.f  cr .( Loaded assets framework... ) \ "
 include ramen/image.f   cr .( Loaded image module... ) \ "
 include ramen/font.f    cr .( Loaded font module... ) \ "
 include ramen/buffer.f  cr .( Loaded buffer module... ) \ "
 include ramen/sample.f  cr .( Loaded sample module... ) \ "
 
-\ Higher level stuff
+( Higher level stuff )
+create ldr 256 /allot
+create project 256 /allot
+
 include ramen/publish.f cr .( Loaded publish module... ) \ "
 include ramen/draw.f    cr .( Loaded draw module... ) \ "
 
@@ -61,9 +64,6 @@ include ramen/default.f
     s" marker (empty)" evaluate
     ." [Gild] "
 ;
-
-create ldr 256 /allot
-create project 256 /allot
 
 : project:  ( -- <path/> ) bl parse slashes project place ;  \ must have trailing slash
 : .project  project count type ;

@@ -73,7 +73,8 @@ define tmxing
 
     : tile>bmp  ( tile-nnn - bitmap | 0 )  \ uses TSXPATH
         0 s" image" element dup -exit  source@ slashes tsxpath+  zstring al_load_bitmap ;
-    : tileset>bmp  ( tileset-nnn - bitmap )  tile>bmp ;  \ it's the same
+    : tileset>bmp  ( tileset-nnn - bitmap )
+        tile>bmp ;  \ it's the same operation
 
     : rectangle?  ( object - flag )  s" gid" attr? not ;
     \ Note RECTANGLE? is needed because TMX is stupid and doesn't have a <rectangle> element.
@@ -84,7 +85,6 @@ include ramen/lib/tiled/tmxz.f
 
 0 value map
 0 value tmx
-:noname  0 to map  0 to tmx  ; loadtrig  \ initialize these on game load
 
 : strip  2over 2swap search if drop nip over - else 2drop then ;
 : >objpath  s" data" strip s" obj/" strjoin  slashes ;
@@ -141,4 +141,7 @@ only forth definitions also xmling also tmxing
 
 : close-tmx   tmx ?dom-free  0 to map ;
 
-only forth definitions 
+:noname  drop  0 to map  0 to tmx  ; +loadtrig  \ initialize these on game load
+
+only forth definitions
+

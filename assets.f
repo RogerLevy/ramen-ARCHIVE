@@ -1,10 +1,7 @@
-\ Asset manager, "toolbox" version; includes standard synchronous loader
+( ---=== Asset framework ===--- )
 
 cell #256 + cell+ constant /assetheader
 defer initdata ( - )
-
-\ ------------------------------------------------------------------------------
-\ Asset framework
 
 create assets 1000 *stack drop
 variable permanent   permanent on
@@ -17,7 +14,7 @@ variable permanents
 \ structure:  reloader , unloader , filepath ... 
 : reload  ( asset - )  ( asset - )  dup @ execute ;
 : unload  ( asset - )  ( asset - )  dup cell+ @ execute ;
-: srcfile ( - ) cell+ cell+ ;
+: srcfile ( asset - adr ) cell+ cell+ ;
 
 
 : -assets ( - )  ['] unload assets each   permanents @ assets truncate ;
@@ -34,10 +31,11 @@ variable permanents
 : defasset  ( - <name> )  struct  /assetheader lastbody struct.size ! ;
 : .asset  ( asset - ) srcfile count dup if  type  else  2drop  then ;
 : .assets  ( - ) assets each> cr .asset ;
+: asset?  srcfile count nip 0<> ;
 
-: loadtrig  ( xt - )  here assets push   ,  ['] drop , ;
 
-\ ------------------------------------------------------------------------------
-\ Standard synchronous loader
+: +loadtrig  ( xt - )  here assets push   ,  ['] drop ,  0 , ;
 
-:make initdata  each> reload ;
+
+( Standard synchronous loader )
+:make initdata  assets each> reload ;

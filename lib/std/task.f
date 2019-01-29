@@ -16,6 +16,8 @@ extend-class _actor
     var (task)  <flag
 end-class
 
+8 kbytes dup class _taskstack  \ grows downwards so we don't have to add any fields
+end-class
 
 
 : rs  (rs) @ ;
@@ -52,7 +54,7 @@ main to task
 : ?end   -exit end ;
 
 decimal
-    : *taskstack  8 kbytes allocate throw ;
+    : *taskstack  { _taskstack dynamic me } ;
     : ?stacks  (rs) @ ?exit  *taskstack (rs) ! ;
     : perform  ( n xt - )
         ?stacks
@@ -110,7 +112,7 @@ fixed
 ;
 
 : free-task  ( - )
-    (rs) @ -exit  (rs) @ free throw ;
+    (rs) @ -exit  (rs) @ destroy ;
 
 
 : task:free-node

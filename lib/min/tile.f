@@ -4,6 +4,7 @@
 [undefined] #MAXTILES [if] 16384 constant #MAXTILES [then]
 
 create tiles #MAXTILES array,
+:noname tiles vacate ; +loadtrig
 
 0 value tba  \ tileset base address
 

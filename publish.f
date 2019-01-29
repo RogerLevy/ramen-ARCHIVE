@@ -1,13 +1,10 @@
-\ TODO: support for other systems
-    
-create default-font
-    /assetheader /allot  al-default-font , 8 , 0 , \ note: not a registered asset
+( ---=== Publish: SwiftForth ===--- )
+
+create default-font  \ note not a registered asset
+    /assetheader /allot  al-default-font , 8 , 0 , 
 
 defer cold  :make cold ;   \ cold boot: executed once at runtime
 defer warm  :make warm ;   \ warm boot: executed potentially multiple times 
-
-\ :make alert
-\    zstring 
 
 : boot
     false to allegro?
@@ -16,20 +13,24 @@ defer warm  :make warm ;   \ warm boot: executed potentially multiple times
     ALLEGRO_WINDOWED
     ALLEGRO_NOFRAME or
         to allegro-display-flags
+    fs off
     +display
     initaudio
+    project off
     ['] initdata catch if s" An asset failed to load." alert then
     al-default-font default-font font.fnt !
 ;
 : runtime  boot cold warm go ;
-: relify  srcfile dup count s" data/" search if  rot place  else 3drop then ;
+: relify
+    dup asset? if srcfile dup count s" data/" search if  rot place  else 3drop then
+               else drop then ;
 
 [defined] program [if]
     
     :make bye  0 ExitProcess ; 
     
     : publish ( - <name> )
-        cr ." Publishing to "  >in @  bl parse type >in !  ." .exe ... "
+        cr ." Publishing to "  >in @ bl parse type >in !  ." .exe ... "
         ['] relify assets each
         ['] runtime 'main !
         program ;
