@@ -52,6 +52,7 @@ $1000 constant 1.0
 : 1pf  s>f FPGRAN f/ ;
 : 2pf  swap 1pf 1pf ;
 : pfloor  INT_MASK and ;
+: pfrac   FRAC_MASK and ;
 : pceil   #1 - pfloor 1.0 + ;
 : 2pfloor  pfloor swap pfloor swap ;
 : 2pceil   pceil swap pceil swap ;

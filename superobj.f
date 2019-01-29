@@ -45,8 +45,8 @@ also venery
         %class svar class.prototypeSize  <adr
         %class svar class.maxSize        <int
         %class svar class.useHeap
-        %class svar class.constructor    <xt
-        %class svar class.destructor     <xt
+        %class svar class.constructor    <word
+        %class svar class.destructor     <word
         %class %node sembed class>pool 
         %class %node sembed class>fields
         %class 1024 cells sfield class>offsetTable  <int
@@ -59,7 +59,7 @@ also venery
         %field %node sembed superfield>node 
         %field svar field.size        <int   
         %field svar field.offset      <int      
-        %field svar field.inspector   <xt    
+        %field svar field.inspector   <word    
         %field svar field.class       <adr
         %field svar field.superfield  <adr
         %field svar field.attributes  <hex
@@ -130,7 +130,7 @@ create mestk  0 , 16 cells allot
     r> >in ! ;
 
 : (.field)  ( adr size - )
-    bounds ?do i @ dup if . else i. then cell +loop ;
+    bounds ?do i @ dup if p. else i. then cell +loop ;
 
 
 : superfield=  field.superfield @ (superfield) = ;

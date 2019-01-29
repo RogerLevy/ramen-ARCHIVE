@@ -17,13 +17,15 @@ include ramen/res.f     cr .( Loaded fixed-point... ) \ "
 include venery/venery.f cr .( Loaded Venery... ) \ "
 include ramen/structs.f cr .( Loaded structs... ) \ "
 
-: <int     is> bounds ?do i @ i. cell +loop ;
+: ?p.  true if p. else i. then ;
+: <int     is> bounds ?do i @ ." #" i. cell +loop ;
 : <bin     is> dump ;
 : <skip    is> nip ." ( " cell i/ i. ." )" space ;
-: <fixed   is> bounds ?do i @ dup if p. else i. then cell +loop ;
+: <fixed   is> bounds ?do i @ ?p. cell +loop ;
 : sfield  sfield <fixed ;
 : svar    svar   <fixed ;
 : create-field  create-field <fixed ;
+
 include ramen/types.f   cr .( Loaded essential datatypes... ) \ "
 include ramen/superobj.f cr .( Loaded Super Objects extension... ) \ "
 

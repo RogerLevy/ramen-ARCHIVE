@@ -7,13 +7,13 @@ end-class
 _node sizeof  512 cells  class _actor
     var role <body
     var id 
-    var en <hex
+    var en <flag
     var hidden <flag
     var marked <flag \ for deletion
     var x  var y  var vx  var vy
     var drw <adr
     var beha <adr
-    var dyn          \ is dynamic
+    var dyn <flag          \ is dynamic
 end-class
 :noname me /node ; _actor class.constructor !
 

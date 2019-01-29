@@ -63,7 +63,6 @@ previous
 [defined] h. [if]
     : <hex  is> drop @ dup 0= if #5 attribute then ." $" h. normal ;
     : <adr  <hex ;
-    : <xt   <hex ;
 [else]
     : <adr  ;
 [then]
@@ -73,3 +72,4 @@ previous
 : <cstring  is> drop count type ;
 : <flag  is> drop @ if ." true " else ." false " then ;
 : <body  is> drop @ .name ;
+: <word  is> drop @ dup if >body .name else i. then ;
