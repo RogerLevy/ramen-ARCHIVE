@@ -8,7 +8,7 @@ depend ramen/lib/stride2d.f
 [undefined] #MAXTILES [if] 16384 constant #MAXTILES [then]
 
 create tiles #MAXTILES array,
-:noname tiles vacate ; +loadtrig 
+:noname 0 tiles [] #MAXTILES cells erase ; +loadtrig 
 
 0 value tba  \ tileset base address
 

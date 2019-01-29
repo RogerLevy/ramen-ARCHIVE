@@ -11,7 +11,6 @@ defer warm  :make warm ;   \ warm boot: executed potentially multiple times
     false to display
     #3 to #globalscale
     ALLEGRO_WINDOWED
-    ALLEGRO_NOFRAME or
         to allegro-display-flags
     fs off
     +display
