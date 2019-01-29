@@ -4,7 +4,7 @@
 : bmph  dup -exit  al_get_bitmap_height 1p ;
 : bmpwh  dup bmpw swap bmph ;
 
-: resolution  ( w h - ) 2i resolution ;
+: resolution  ( w h - ) 2i 2dup res 2@ d= not if resolution else 2drop then ;
 
 : nativewh  native 2@ 2p ;
 
