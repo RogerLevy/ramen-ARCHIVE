@@ -15,6 +15,6 @@ fixed
     ['] recreate-buffer2d ['] unload-buffer2d r@  /assetheader - register
     r> init-buffer2d ;
 
-: buffer2d   ( cols rows - <name> )  ( - array2d )
+: buffer2d:   ( cols rows - <name> )  ( - array2d )
     create  /assetheader /allot  %array2d sizeof allotment  init-buffer2d
     does>  /assetheader + ; 

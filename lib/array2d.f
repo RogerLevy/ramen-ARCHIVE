@@ -23,7 +23,7 @@ struct %array2d
 : array2d,  ( numcols numrows - )
     2dup  array2d-head,  * cells /allot ;
 
-: array2d  ( numcols numrows - <name> )
+: array2d:  ( numcols numrows - <name> )
     create array2d, ;
 
 : /array2d  ( numcols numrows pitch data array2d -- )

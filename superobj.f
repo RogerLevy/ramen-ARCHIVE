@@ -232,7 +232,8 @@ create mestk  0 , 16 cells allot
 \    then
 ;
 
-: class  ( initialsize maxsize - <name> )  \ pass 0 for maxsize to not have one
+
+: class:  ( initialsize maxsize - <name> )  \ pass 0 for maxsize to not have one
     create
         %class old-sizeof allotment to cc
         cc to lastClass
@@ -265,7 +266,7 @@ create mestk  0 , 16 cells allot
     then
 ;
 
-: end-class
+: ;class
     !prototype
 ;
 
@@ -321,14 +322,14 @@ previous definitions
 : knowing ( - <class> )
     only forth definitions ' >body converse ;
 
-: extend-class ( - <name> )
+: extend:  ( - <name> )
     ' >body to cc 
 ;
 
 ( Node class )
 
-%node venery:sizeof dup class _node
-end-class
+%node venery:sizeof dup class: _node
+;class
 :noname me /node ; _node class.constructor !
 
 

@@ -10,14 +10,14 @@
 
 0 value task  \ current task
 
-extend-class _actor
+extend: _actor
     var sp <adr  96 cells field ds <skip
     var rp <adr  var (rs) <adr
     var (task)  <flag
-end-class
+;class
 
-8 kbytes dup class _taskstack  \ grows downwards so we don't have to add any fields
-end-class
+8 kbytes dup class: _taskstack  \ grows downwards so we don't have to add any fields
+;class
 
 
 : rs  (rs) @ ;

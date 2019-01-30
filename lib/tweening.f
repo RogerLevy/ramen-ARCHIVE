@@ -7,7 +7,7 @@ variable (length)
 
 create tweens _node static
 
-_node sizeof 0 class _tween
+_node sizeof 0 class: _tween
     
     \ to prevent tweening objects that don't exist anymore
     var target <adr
@@ -16,17 +16,17 @@ _node sizeof 0 class _tween
     var startval
     var dest <adr
     var delta
-    var ease <xt   
+    var ease <word
     
     var starttime  \ start time in frames
     var endtime    \ end time in frames
     
     \        var storer <xt  
-    var in/out <xt  
+    var in/out <word  
     
     ( optional ease param )
     var param
-end-class
+;class
 
 
 define tweening

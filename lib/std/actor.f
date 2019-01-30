@@ -1,10 +1,10 @@
 0 value lastRole \ used by map loaders (when loading objects scripts)
 variable nextid
 
-0  4 kbytes  class _role
-end-class
+0  4 kbytes  class: _role
+;class
 
-_node sizeof  512 cells  class _actor
+_node sizeof  512 cells  class: _actor
     var role <body
     var id 
     var en <flag
@@ -14,7 +14,7 @@ _node sizeof  512 cells  class _actor
     var drw <adr
     var beha <adr
     var dyn <flag          \ is dynamic
-end-class
+;class
 :noname me /node ; _actor class.constructor !
 
 : basis _role prototype ;  \ default role-var and action values for all newly created roles
@@ -55,15 +55,15 @@ create objlists  _node static            \ parent of all objlists
 : act>   ( - <code> ) r> beha ! ;
 : away  ( obj x y - ) rot 's x 2@ 2+ at ;
 : -act  ( - ) act> noop ;
-: objlist  ( - <name> )  create _node static me objlists push ;
+: objlist:  ( - <name> )  create _node static me objlists push ;
 
 ( stage )
-objlist stage  \ default object list
+objlist: stage  \ default object list
 : /stage  stage vacate  0 nextid ! ;
 
 ( static actors )
 : actor,  ( parent - )  _actor static  me swap push  /actor ;
-: actor   ( parent - <name> )  create  actor, ;
+: actor:   ( parent - <name> )  create  actor, ;
 
 ( role stuff )
 : role@  ( - role )
@@ -87,10 +87,10 @@ objlist stage  \ default object list
 : role-field  _role fields: field ;
 
 
-: :to   ( roledef - <name> ... )
+: :to   ( role - <name> ... )
     postpone 's :noname swap ! ;
 
-: ->  ( roledef - <action> )
+: ->  ( role - <action> )
     postpone 's s" @ execute" evaluate ; immediate
 
 ( create role )
@@ -100,7 +100,7 @@ objlist stage  \ default object list
     drop
     >in ! ;
 
-: create-role  ( - <name> )
+: role:  ( - <name> )
     ?update  create  _role static
     me to lastRole
     ['] is-action? _role >fields some>

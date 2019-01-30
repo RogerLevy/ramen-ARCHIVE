@@ -20,7 +20,7 @@ cell constant /frame
         \ vflip = $2
         \ index is fixed point
 
-extend-class _actor
+extend: _actor
     \ Transformation info
     var sx  var sy              \ scale
     var ang                     \ rotation
@@ -34,7 +34,7 @@ extend-class _actor
     var rgntbl <adr \ region table
     var anmspd    \ animation speed (1.0 = normal, 0.5 = half, 2.0 = double ...)
     var anmctr    \ animation counter
-end-class
+;class
 
 _actor prototype as
     1 1 sx 2!

@@ -12,13 +12,13 @@ create tiles #MAXTILES array,
 
 0 value tba  \ tileset base address
 
-[undefined] tilebuf [if] 1024 1024 buffer2d tilebuf [then]
+[undefined] tilebuf [if] 1024 1024 buffer2d: tilebuf [then]
 
-extend-class _actor
+extend: _actor
     var scrollx  var scrolly  \ used to define starting column and row!
     var w  var h              \ width & height in pixels
     var tbi                   \ tile base index
-end-class
+;class
 
 \ -------------------------------------------------------------------------------------------------
 \ Break up a bitmap into tiles that can be used by the Tiled module
