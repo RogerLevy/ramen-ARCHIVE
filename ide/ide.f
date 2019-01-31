@@ -84,6 +84,7 @@ consolas chrh constant fh
 : bufloc  >outbuf cursor y@ #128 * + cursor x@ 1i + ;
 : scroll
     #128 +to >outbuf
+    bufloc #128 erase
 ;
 : ramen:cr
     0 cursor x!
@@ -109,7 +110,7 @@ decimal
 fixed
 : ramen:attribute  1p 4 cells * attributes +  cursor colour  4 imove ;
 
-: ramen:page  #rows   #128 * +to >outbuf  0 0 cursor xy! ;
+: ramen:page  >outbuf cursor y@ 1 + #128 * + to >outbuf  0 0 cursor xy! ;
 
 : zero  0 ;
 create ide-personality
@@ -292,7 +293,7 @@ only forth definitions also ideing
 : ide  /repl  ['] ?rest catch ?.catch  go  -ide ;
 : /s  S0 @ SP! ;
 : quit  -ide cr quit ;
-: wipe  0 0 cursor xy!  outbuf to >outbuf  outbuf 64 megs erase ;
+: wipe  0 0 cursor xy!  outbuf to >outbuf  outbuf #128 #rows * erase ;
 
 /ide  rasa
 only forth definitions
