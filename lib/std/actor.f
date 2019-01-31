@@ -48,7 +48,7 @@ create objlists  _node static            \ parent of all objlists
 : draw   ( - ) en @ -exit  hidden @ ?exit  x 2@ at  drw @ ?call ;
 : draws  ( objlist ) each> as draw ;
 : act   ( - ) en @ -exit  beha @ ?call ;
-: sweep ( objlist ) each> as marked @ -exit  marked off  id off  me free-node ;
+: sweep ( - ) objlists each> each> as marked @ -exit  marked off  id off  me free-node ;
 : acts  ( objlist ) each> as act ;
 : draw>  ( - <code> ) r> drw ! hidden off ;
 : act>   ( - <code> ) r> beha ! ;

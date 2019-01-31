@@ -17,7 +17,7 @@ show-stage
 
 : think  stage acts stage multi ;
 : physics  stage each> as vx 2@ x 2+! ;
-: default-step  step> think physics stage sweep ;
+: default-step  step> think physics sweep ;
 default-step
 
 cr .( Finished loading Standard Pack. ) \ "
