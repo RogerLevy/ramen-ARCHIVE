@@ -4,7 +4,7 @@ variable nextid
 0  4 kbytes  class: _role
 ;class
 
-_node sizeof  512 cells  class: _actor
+512 cells  dclass: _actor
     var role <body
     var id 
     var en <flag
@@ -15,7 +15,6 @@ _node sizeof  512 cells  class: _actor
     var beha <adr
     var dyn <flag          \ is dynamic
 ;class
-:noname me /node ; _actor class.constructor !
 
 : basis _role prototype ;  \ default role-var and action values for all newly created roles
 

@@ -103,7 +103,7 @@ create mestk  0 , 16 cells allot
 : i} ( - ) mestk @ 1 - 15 and mestk !  mestk dup @ cells + cell+ @ as ; 
 : {  ( - ) state @ if s" me >r" evaluate else  i{  then ; immediate
 : }  ( - ) state @ if s" r> as" evaluate else  i}  then ; immediate
-: >{ ( object - )  s" { as " evaluate ; immediate 
+: >{ ( object - )  s" { as " evaluate ; immediate  \ }
 
 
 : add-field  ( field class - )  >fields push ;
@@ -330,7 +330,15 @@ previous definitions
 
 %node venery:sizeof dup class: _node
 ;class
-:noname me /node ; _node class.constructor !
+: me/node  me /node ;
+' me/node lastClass class.constructor !
+
+( Dynamic classes - based on _node )
+
+: dclass:  ( maxsize )
+    _node sizeof swap class:
+    ['] me/node lastClass class.constructor ! ;
+
 
 
 ( TEST )
