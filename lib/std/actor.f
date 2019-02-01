@@ -52,7 +52,7 @@ create objlists  _node static            \ parent of all objlists
 : acts  ( objlist ) each> as act ;
 : draw>  ( - <code> ) r> drw ! hidden off ;
 : act>   ( - <code> ) r> beha ! ;
-: away  ( obj x y - ) rot 's x 2@ 2+ at ;
+: from  ( obj x y - ) rot 's x 2@ 2+ at ;
 : -act  ( - ) act> noop ;
 : objlist:  ( - <name> )  create _node static me objlists push ;
 

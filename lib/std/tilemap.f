@@ -7,12 +7,12 @@ depend ramen/lib/stride2d.f
 
 [undefined] #MAXTILES [if] 16384 constant #MAXTILES [then]
 
-create tiles #MAXTILES array,
-:noname 0 tiles [] #MAXTILES cells erase ; +loadtrig 
-
-0 value tba  \ tileset base address
-
-[undefined] tilebuf [if] 1024 1024 buffer2d: tilebuf [then]
+[undefined] tiles [if]
+    create tiles #MAXTILES array, 
+    :noname 0 tiles [] #MAXTILES cells erase ; +loadtrig 
+    0 value tba  \ tileset base address
+    1024 1024 buffer2d: tilebuf 
+[then]
 
 extend: _actor
     var scrollx  var scrolly  \ used to define starting column and row!
@@ -60,7 +60,7 @@ extend: _actor
 0 tilebase!
 
 : >gid  ( tile - gid )
-    $003fff000 and ;
+    $03fff000 and ;
 
 decimal \ for speed
 : tile>bmp  ( tiledata - bitmap )  $03fff000 and #10 >> tba + @ ;
@@ -84,6 +84,7 @@ create tstep 16 , 16 ,
 
 
 : scrollofs  ( scrollx scrolly tilew tileh pen=xy - col row pen=offsetted )
+    [undefined] hd [if] 2swap 2pfloor 2swap [then]
     2over 2over 2mod 2negate +at   2/ 2pfloor ;
 
 \ Isometric support

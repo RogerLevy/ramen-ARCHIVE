@@ -278,10 +278,10 @@ previous definitions
 : (knowing)  ( class - current class )
     get-current swap dup converse ;
 
-: :private ( class - <name> <code> current class ; )
+: :- ( class - <name> <code> current class ; )
     (knowing) definitions knowinging +order : ;
 
-: :public ( class - <name> <code> ; )
+: :+ ( class - <name> <code> ; )
     (knowing) knowinging +order : ;
 
 : field  ( size - <name> ) ( object - object+n )
