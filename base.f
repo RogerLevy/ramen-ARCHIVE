@@ -48,23 +48,6 @@ include ramen/default.f
 : panic ( - ) step> noop ;
 : void ( - ) panic show> ramenbg ;
 
-: empty
-    page
-    ." [Empty]" cr
-    void
-    -assets
-    0 to now
-    empty
-;
-
-: now  now 1p ;
-
-: gild
-    only forth definitions
-    s" marker (empty)" evaluate
-    ." [Gild] "
-;
-
 : project:  ( -- <path/> ) bl parse slashes project place ;  \ must have trailing slash
 : .project  project count type ;
 : rld  ldr count nip -exit ldr count included ;
@@ -79,5 +62,22 @@ include ramen/default.f
             dup 0= if  ?project  then
             throw 
     2r> 2drop ;
+
+: empty
+    page
+    ." [Empty]" cr
+    void
+    -assets
+    0 to now
+    source-id 0> if including -name #1 + slashes project place then  \ swiftforth
+    empty
+;
+: gild
+    only forth definitions
+    s" marker (empty)" evaluate
+    ." [Gild] "
+;
+: now  now 1p ;  \ must go last
+
 
 gild void
