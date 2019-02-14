@@ -331,11 +331,11 @@ previous definitions
 %node venery:sizeof dup class: _node
 ;class
 : me/node  me /node ;
-' me/node lastClass class.constructor !
+' me/node _node class.constructor !
 
 ( Dynamic classes - based on _node )
 
-: dclass:  ( maxsize )
+: dynamic-class:  ( maxsize )
     _node sizeof swap class:
     ['] me/node lastClass class.constructor ! ;
 

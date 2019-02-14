@@ -4,7 +4,7 @@ variable nextid
 0  4 kbytes  class: _role
 ;class
 
-512 cells  dclass: _actor
+512 cells  dynamic-class: _actor
     var role <body
     var id 
     var en <flag
@@ -36,7 +36,7 @@ create objlists  _node static            \ parent of all objlists
 : actor:free-node
     dup _actor is? not if  destroy ;then
     >{
-        dyn @ if  me detach  me destroy  else  me detach  then
+        dyn @ if  me destroy  then
         id off  \ necessary for breaking connections
     }
 ;    
