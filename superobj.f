@@ -302,8 +302,8 @@ previous definitions
 
 : (peek)  ( object class - ) 
     >fields each> ( adr object, field, - adr )
-        normal         
-        dup field.superfield @ body> >name ccount type space
+        cr normal space
+        dup field.superfield @ body> >name ccount type ."  : " 
         bright
         2dup dup field.size @ swap field.inspector @ execute
         field.size @ +   \ go to next field in the passed instance

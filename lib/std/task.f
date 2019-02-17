@@ -11,7 +11,7 @@
 0 value task  \ current task
 
 extend: _actor
-    var sp <adr  96 cells field ds <skip
+    var sp <adr  64 cells field ds <skip
     var rp <adr  var (rs) <adr
     var (task)  <flag
 ;class
@@ -21,10 +21,10 @@ extend: _actor
 
 
 : rs  (rs) @ ;
-: dtop  ds 96 cells + ;
+: dtop  ds 64 cells + ;
 : rtop  rs 8 kbytes + ;
 
-: .ds  's ds 96 cells idump ;
+: .ds  ds 64 cells idump ;
 
 
 create main _actor static \ proxy for the Forth data and return stacks
@@ -102,7 +102,7 @@ fixed
                 cr ." A task crashed. Halting it."
                 dtop cell- sp! .me
                 cr ." Data stack: "
-                ds 128 cells idump
+                .ds
                 (task) off  \ don't call HALT, we don't want PAUSE
             then
         me node.next @ 0= me main = or until

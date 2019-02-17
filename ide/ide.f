@@ -162,6 +162,11 @@ create ide-personality
 \    etype ALLEGRO_EVENT_DISPLAY_RESIZE =
 \        etype FULLSCREEN_EVENT =  or if  /margins  then
 
+    etype ALLEGRO_EVENT_MOUSE_AXES = if
+          evt ALLEGRO_MOUSE_EVENT.dz @ 0 > if pageup then
+          evt ALLEGRO_MOUSE_EVENT.dz @ 0 < if pagedown then
+    ;then
+
     etype ALLEGRO_EVENT_KEY_DOWN = if
         keycode #37 < ?exit
         keycode case
