@@ -188,8 +188,7 @@ create ide-personality
             unichar special
         else
             alt? ?exit
-            unichar #32 >= unichar #126 <= and
-                unichar [char] ` <> and if
+            unichar #32 >= unichar #126 <= and if
                 unichar typechar  exit
             then
         then

@@ -1,5 +1,5 @@
-\ Tilemap rendering
-\  Loading tiles, tile and tilemap display and collision routines
+( ---=== Tilemap rendering and objects ===--- )
+\  Loading tiles, tile and tilemap display, and collision routines
 
 depend ramen/lib/array2d.f
 depend ramen/lib/buffer2d.f
@@ -102,8 +102,7 @@ create tstep 16 , 16 ,
     loop  drop  ;
 
 
-\ -------------------------------------------------------------------------------------------------
-\ Tilemap objects
+( ---=== Tilemap objects ===--- )
 \ They don't allocate any buffers for map data.
 \ A part of the singular buffer TILEBUF is located using the scrollx/scrolly values.
 
