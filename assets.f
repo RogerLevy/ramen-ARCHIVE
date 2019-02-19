@@ -5,8 +5,10 @@ defer initdata ( - )
 
 create assets 1000 *stack drop
 variable permanent   permanent on
-variable permanents
-: ?permanent  permanent @ -exit   nip ['] drop swap  1 permanents +! ;
+variable #permanents
+
+\ "permanent" or "system" assets; not needed by games so reloader is a no-op
+: ?permanent  permanent @ -exit   nip ['] drop swap  1 #permanents +! ;
 
 : register ( reloader-xt unloader-xt asset - ) ?permanent  dup assets push  2! ;
 
@@ -17,7 +19,7 @@ variable permanents
 : srcfile ( asset - adr ) cell+ cell+ ;
 
 
-: -assets ( - )  ['] unload assets each   permanents @ assets truncate ;
+: -assets ( - )  ['] unload assets each   #permanents @ assets truncate ;
 
 
 \ Note: Don't worry that the paths during development are absolute;
@@ -28,7 +30,7 @@ variable permanents
     including -name #1 + 2swap strjoin 2dup file-exists ?exit
     true abort" File not found" ;
 
-: defasset  ( - <name> )  struct  /assetheader lastbody struct.size ! ;
+: asset:  ( - <name> )  struct  /assetheader lastbody struct.size ! ;
 : .asset  ( asset - ) srcfile count dup if  type  else  2drop  then ;
 : .assets  ( - ) assets each> cr .asset ;
 : asset?  srcfile count nip 0<> ;

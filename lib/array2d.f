@@ -26,10 +26,6 @@ struct %array2d
 : array2d:  ( numcols numrows - <name> )
     create array2d, ;
 
-: /array2d  ( numcols numrows pitch data array2d -- )
-    4! ;
-
-
 : count2d ( array2d - data #cells )
     dup array2d.data @ swap array2d.cols 2@ * ;
 

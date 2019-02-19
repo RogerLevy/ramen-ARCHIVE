@@ -1,4 +1,4 @@
-defasset %buffer
+asset: %buffer
     %buffer svar buffer.data
     %buffer svar buffer.size
 

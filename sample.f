@@ -1,4 +1,4 @@
-defasset %sample
+asset: %sample
     %sample svar sample.smp
     %sample svar sample.loop
 : >smp  sample.smp @ ;

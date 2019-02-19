@@ -1,4 +1,4 @@
-defasset font
+asset: font
     font svar font.fnt
     font svar font.size
     font svar font.flags
