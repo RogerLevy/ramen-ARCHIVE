@@ -78,7 +78,7 @@ consolas chrh constant fh
 
 ( utils )
 : fillrect  ( w h - )  write-src blend>  rectf ;
-: clear  ( w h bitmap - )  black 0 alpha  onto>  fill ;
+: clear  ( w h bitmap - )  black 0 alpha  onto>  fillrect ;
 
 ( output )
 : bufloc  >outbuf cursor y@ #128 * + cursor x@ 1i + ;
@@ -110,7 +110,10 @@ decimal
 fixed
 : ramen:attribute  1p 4 cells * attributes +  cursor colour  4 imove ;
 
-: ramen:page  >outbuf cursor y@ 1 + #128 * + to >outbuf  0 0 cursor xy! ;
+: ramen:page
+  >outbuf cursor y@ 1 + #128 * + to >outbuf
+  0 0 cursor xy!
+  >outbuf #128 #rows * erase ;
 
 : zero  0 ;
 create ide-personality
@@ -154,24 +157,19 @@ create ide-personality
         [char] c of  copy   endof
     endcase ;
 
-: pageup  #rows 2 / pfloor #-128 * +to >outbuf ;
+: pageup  #rows 2 / pfloor #-128 * +to >outbuf  >outbuf outbuf max to >outbuf ;
 : pagedown  #rows 2 / pfloor #128 * +to >outbuf ;
 
 : idekeys
-    \ always:
+    ( always )
+    
 \    etype ALLEGRO_EVENT_DISPLAY_RESIZE =
 \        etype FULLSCREEN_EVENT =  or if  /margins  then
-
-    etype ALLEGRO_EVENT_MOUSE_AXES = if
-          evt ALLEGRO_MOUSE_EVENT.dz @ 0 > if pageup then
-          evt ALLEGRO_MOUSE_EVENT.dz @ 0 < if pagedown then
-    ;then
 
     etype ALLEGRO_EVENT_KEY_DOWN = if
         keycode #37 < ?exit
         keycode case
             <tab> of  repl toggle  endof
-            <f2> of  page  endof
             <f5> of
                 shift? if
                     s" session.f" file-exists if
@@ -186,7 +184,7 @@ create ide-personality
     then
 
 
-    \ only when REPL? is true:
+    ( only when REPL? is true )
     repl? -exit
     etype ALLEGRO_EVENT_KEY_CHAR = if
         ctrl? if
@@ -264,9 +262,10 @@ create ide-personality
           replbuf to >outbuf
           replbuf #1024 erase
           0 0 cursor xy!  scrolling off
-          ?.errs  .s2 
-          \ 0 peny @ fnt @ chrh + at
-          repl @ if .cmdbuf then
+          ?.errs  repl @ if
+            .s2 
+            .cmdbuf
+          then
           scrolling on
           white draw-outbuf
       r> to >outbuf  2r> at-xy
@@ -290,6 +289,9 @@ create ide-personality
     [in-platform] sf [if]  begin refill while interpret repeat  [then] ; 
 
 only forth definitions also ideing
+: ide:pageup    pageup ;
+: ide:pagedown  pagedown ;
+
 : ide-system  idekeys ;
 : ide-overlay  0 0 at  unmount  repl @ if shade then  .output  bottom at .cmdline ;
 : rasa  ['] ide-system  is  ?system  ['] ide-overlay  is ?overlay ;

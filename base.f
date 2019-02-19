@@ -65,7 +65,8 @@ include ramen/default.f
 
 : empty
     page
-    ." [Empty]" cr
+    cr
+    ." [Empty]"
     void
     -assets
     0 to now
@@ -75,7 +76,7 @@ include ramen/default.f
 : gild
     only forth definitions
     s" marker (empty)" evaluate
-    ." [Gild] "
+    cr ." [Gild] "
 ;
 : now  now 1p ;  \ must go last
 
