@@ -8,6 +8,7 @@ asset: %image
     %image svar image.subcount
     %image svar canvas.w
     %image svar canvas.h
+    %image svar image.regions
     
 
 \ get dimensions, fixed point

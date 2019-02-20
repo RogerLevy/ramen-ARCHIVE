@@ -31,7 +31,6 @@ extend: _actor
     var img <body \ image asset
     var anm <adr  \ animation base
     var spr       \ sprite index
-    var rgntbl <adr \ region table
     var anmspd    \ animation speed (1.0 = normal, 0.5 = half, 2.0 = double ...)
     var anmctr    \ animation counter
 ;class
@@ -50,6 +49,8 @@ _actor prototype as
         al_draw_tinted_scaled_rotated_bitmap_region ;
 
 ( Frame stuff )
+: rgntbl  img @ image.regions ;
+
 : framexywh  ( n rgntbl - srcx srcy w h )
     swap /region * + 4@ ;
 
@@ -67,13 +68,13 @@ _actor prototype as
 
 ( Animation )
 : frame[]  ( anm - adr )
-    ( skip the settings ) 3 cells + anmctr @ pfloor /frame * + ;
+    ( skip the settings ) 2 cells + anmctr @ pfloor /frame * + ;
 
 : curflip  ( index - index n )
     anm @ if anm @ frame[] @ #3 and ;then  dup 3 and ;
 
 : ?regorg  ( index - index )  \ apply the region origin
-    rgntbl @ -exit
+    img @ -exit  rgntbl @ -exit
     rgntbl @ over /region * + 4 cells + 2@ cx 2! ;
 
 : frame@  ( - n | 0 )  \ 0 if anm is null
@@ -82,7 +83,7 @@ _actor prototype as
 \ NSPRITE
 \ draw a sprite either from a subdivided image, animation, or image plus region table.
 \ if there's no animation, you can pack the flip info into the index. (lower 2 bits)
-\ IMG must be subdivided and/or RGNTBL must be set. (region table takes precedence.)
+\ IMG must be subdivided and/or it must have a region table. (region table takes precedence.)
 \ if neither, then the whole IMG will be drawn
 : nsprite  ( index - )   
     anm @ if spr ! frame@ then
@@ -100,12 +101,12 @@ _actor prototype as
 
 \ Play an animation from the beginning, using its settings
 : animate  ( anim - )
-    dup anm !  @+ rgntbl ! @+ img ! @+ anmspd !   drop  0 anmctr ! ;
+    dup anm !  @+ img ! @+ anmspd !   drop  0 anmctr ! ;
     
 \ Define animations
-: anim:  ( regiontable image speed - <name> loopadr )
-    create  3,  here ;
-: autoanim:  ( regiontable image speed - <name> loopadr ) ( - )
+: anim:  ( image speed - <name> loopadr )
+    create  2,  here ;
+: autoanim:  ( image speed - <name> loopadr ) ( - )
     anim: does> animate ;
     
 : ,,  for  dup , loop drop  ;
