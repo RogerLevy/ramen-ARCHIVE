@@ -57,36 +57,24 @@ decimal
     : *taskstack  { _taskstack dynamic me } ;
     : ?stacks  (rs) @ ?exit  *taskstack (rs) ! ;
     : perform  ( n xt - )
-        ?stacks
-        \ running? if ds 27 cells + sp!  r>  rs 58 cells + rp!  >r noop exit then
+        ?stacks  \ tasks don't allocate their return stacks until their first PERFORM
         (task) on
-        >code rtop cell- cell- !
-        dtop cell- !
+        running? if
+            rtop cell- rp!
+            ( xt ) >code >r
+            ( n )
+            dtop cell- cell- sp!
+        ;then
+        ( xt ) >code rtop cell- cell- !
+        ( n ) dtop cell- !
         dtop cell- cell- sp !
         ['] halt >code rtop cell- !
         rtop cell- cell- rp !
-\        running? if pause then
     ;
     : perform> ( n - <code> )
         r> code> perform ;
 
 fixed
-
-0 value (xt)
-0 value (sp)
-: farcall ( val xt - )  ( val - )
-    task main = if sp@ to (sp) execute (sp) sp! drop drop ;then
-    to (xt)
-    sp@ sp !
-    rp@ rp !
-    main 's sp @ sp!
-    main 's rp @ rp!
-    { (xt) execute }
-    rp @ rp!
-    sp @ sp!
-    drop
-;
-
 
 \ pulse the multitasker.
 : multi  ( objlist - )
