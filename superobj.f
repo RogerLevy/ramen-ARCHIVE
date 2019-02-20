@@ -44,7 +44,7 @@ also venery
         %class svar class.prototype      <adr
         %class svar class.prototypeSize  <adr
         %class svar class.maxSize        <int
-        %class svar class.useHeap
+        \ %class svar class.useHeap
         %class svar class.constructor    <word
         %class svar class.destructor     <word
         %class %node sembed class>pool 
@@ -339,6 +339,8 @@ previous definitions
     _node sizeof swap class:
     ['] me/node lastClass class.constructor ! ;
 
+: invalidate-pool  ( class )
+    class>pool collection.length 0 swap ! ;
 
 
 ( TEST )
