@@ -340,7 +340,7 @@ previous definitions
     ['] me/node lastClass class.constructor ! ;
 
 : invalidate-pool  ( class )
-    class>pool collection.length 0 swap ! ;
+    class>pool 0node ;
 
 
 ( TEST )

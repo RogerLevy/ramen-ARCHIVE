@@ -54,7 +54,7 @@ create objlists  _node static            \ parent of all objlists
 : act>   ( - <code> ) r> beha ! ;
 : from  ( obj x y - ) rot 's x 2@ 2+ at ;
 : -act  ( - ) act> noop ;
-: objlist:  ( - <name> )  create _node static me objlists push ;
+: objlist:  ( - <name> )  create _actor static me objlists push ;
 
 ( stage )
 objlist: stage  \ default object list
