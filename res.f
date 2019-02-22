@@ -17,11 +17,6 @@
 : vieww  viewwh drop ;
 : viewh  viewwh nip ;
 
-: transform:  ( x y sx sy ang - <name> )
-    >r >r >r >r >r
-    create here  /transform allot
-    r> r> r> r> 4af r> >rad 1af al_build_transform ;
-
 : fps  fps 1p ;
 
 : gscale  globalscale dup 2* ;

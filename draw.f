@@ -130,7 +130,7 @@ viewwh ch ! cw !
 previous
 
 ( standard 2D mode; no need to call unless you do stuff to the projection matrix )
-transform p
+transform: p
 : 2d
     p al_identity_transform
     p 0 0 -16384 3af viewwh globalscale dup 2* 16384 3af al_orthographic_transform
