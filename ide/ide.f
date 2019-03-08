@@ -60,7 +60,7 @@ create attributes
 : /output
     64 megs allocate throw to outbuf
     outbuf to >outbuf
-    native 2@ al_create_bitmap to outbmp  
+    #2048 #2048 al_create_bitmap to outbmp  
 ; \    outbmp al_clone_bitmap to tempbmp ;
 
 ( metrics )

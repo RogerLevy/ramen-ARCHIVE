@@ -6,13 +6,17 @@ create default-font  \ note not a registered asset
 defer cold  :make cold ;   \ cold boot: executed once at runtime
 defer warm  :make warm ;   \ warm boot: executed potentially multiple times 
 
+: gamewindow
+    fs off
+    ALLEGRO_WINDOWED
+    ALLEGRO_OPENGL or
+    al_set_new_display_flags ;
+
 : boot
     false to allegro?
     false to display
     #3 to #globalscale
-    ALLEGRO_WINDOWED
-        to allegro-display-flags
-    fs off
+    gamewindow
     +display
     initaudio
     project off
@@ -25,8 +29,6 @@ defer warm  :make warm ;   \ warm boot: executed potentially multiple times
                else drop then ;
 
 [defined] program [if]
-    
-    :make bye  0 ExitProcess ; 
     
     : publish ( - <name> )
         cr ." Publishing to "  >in @ bl parse type >in !  ." .exe ... "

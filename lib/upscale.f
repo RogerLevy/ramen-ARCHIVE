@@ -1,7 +1,7 @@
 \ fat pixels and subscreens
 
 depend ramen/draw.f
-nativewh canvas: canv
+2048 2048 canvas: canv
 create tempres  0 , 0 ,
 
 : (size)  viewwh canv resize-canvas ;
