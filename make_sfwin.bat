@@ -7,12 +7,14 @@ if %1=="" (
     SET buildname=%1
 )
 
+@REM Create fresh directory
 md bin\%buildname%\data
 del /s /q bin\%buildname%
 
-@REM Don't remove this; Ramen needs these files to start
+@REM Copy essential Ramen assets
 copy /y  ramen\ide\data\*.*  bin\%buildname%\data
 
+@REM Copy data and dynamic libraries
 if %3=="" (
     copy /y  data\*.*  bin\%buildname%\data
 ) else (
@@ -20,6 +22,7 @@ if %3=="" (
 )
 copy  afkit\dep\allegro5\5.2.3\*.dll  bin\%buildname%
 
+@REM Run SwiftForth to compile and export
 if %2=="" (
     sf include main.f publish bin\%buildname%\%buildname%
 ) else (

@@ -14,16 +14,18 @@ defer warm  :make warm ;   \ warm boot: executed potentially multiple times
 
 : boot
     false to allegro?
-    false to display
     #3 to #globalscale
     gamewindow
-    +display
-    initaudio
-    project off
-    ['] initdata catch if s" An asset failed to load." alert then
+    scaled-res init-display
     al-default-font default-font font.fnt !
+    project off
+    oscursor off
+    ['] initdata catch if s" An asset failed to load." alert then
 ;
-: runtime  boot cold warm go ;
+
+: runtime
+    boot cold warm go ;
+
 : relify
     dup asset? if srcfile dup count s" data/" search if  rot place  else 3drop then
                else drop then ;
@@ -35,6 +37,7 @@ defer warm  :make warm ;   \ warm boot: executed potentially multiple times
         ['] relify assets each
         ['] runtime 'main !
         program ;
+        
 [else]
     cr .( PROGRAM not defined; PUBLISH disabled )
 [then]

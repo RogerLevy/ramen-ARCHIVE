@@ -7,15 +7,14 @@ include afkit/afkit.f  \ AllegroForthKit
 0 value (count)
 0 value (ts)
 0 value (bm)
-\ include ramen/plat.f
 [undefined] LIGHTWEIGHT [if]
-include afkit/dep/zlib/zlib.f
+    include afkit/dep/zlib/zlib.f
 [then]
 include ramen/fixops.f
 include afkit/plat/sf/fixedp.f   \ must come after fixops.  
-include ramen/res.f     cr .( Loaded fixed-point... ) \ "
-include venery/venery.f cr .( Loaded Venery... ) \ "
-include ramen/structs.f cr .( Loaded structs... ) \ "
+include ramen/res.f    
+include venery/venery.f
+include ramen/structs.f
 
 : ?p.      p. ; \ dup $0000fff and if p. else i. then ;
 : <int     is> bounds ?do i @ ." #" i. cell +loop ;
@@ -26,22 +25,22 @@ include ramen/structs.f cr .( Loaded structs... ) \ "
 : svar    svar   <fixed ;
 : create-field  create-field <fixed ;
 
-include ramen/types.f   cr .( Loaded essential datatypes... ) \ "
-include ramen/superobj.f cr .( Loaded Super Objects extension... ) \ "
+include ramen/types.f    
+include ramen/superobj.f 
 
 ( Assets )
-include ramen/assets.f  cr .( Loaded assets framework... ) \ "
-include ramen/image.f   cr .( Loaded image module... ) \ "
-include ramen/font.f    cr .( Loaded font module... ) \ "
-include ramen/buffer.f  cr .( Loaded buffer module... ) \ "
-include ramen/sample.f  cr .( Loaded sample module... ) \ "
+include ramen/assets.f   
+include ramen/image.f    
+include ramen/font.f     
+include ramen/buffer.f   
+include ramen/sample.f   
 
 ( Higher level stuff )
 create ldr 256 /allot
 create project 256 /allot
 
-include ramen/publish.f cr .( Loaded publish module... ) \ "
-include ramen/draw.f    cr .( Loaded draw module... ) \ "
+include ramen/publish.f  
+include ramen/draw.f     
 
 include ramen/default.f
 

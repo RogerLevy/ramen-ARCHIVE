@@ -7,6 +7,7 @@ depend ramen/lib/std/tilemap.f
 
 create roles #MAXTILES stack,
 create bitmaps 100 stack,         \ single-image tileset's bitmaps
+
 defer tmxobj   ( object-nnn role - )
 defer tmximage ( object-nnn gid - )
 defer tmxrect  ( object-nnn w h - )
@@ -140,6 +141,6 @@ also xmling also tmxing
 : open-map  ( path c - )
     close-tmx  /roles  open-tmx ;
 
-:noname bitmaps vacate ; +loadtrig 
+:noname  bitmaps vacate ; +loadtrig
 
 only forth definitions

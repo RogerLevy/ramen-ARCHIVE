@@ -73,8 +73,9 @@ define tmxing
 
     : tile>bmp  ( tile-nnn - bitmap | 0 )  \ uses TSXPATH
         0 s" image" element dup -exit  source@ slashes tsxpath+  zstring al_load_bitmap ;
+        
     : tileset>bmp  ( tileset-nnn - bitmap )
-        tile>bmp ;  \ it's the same operation
+        tile>bmp ;  \ it's the same operation as TILE>BMP
 
     : rectangle?  ( object - flag )  s" gid" attr? not ;
     \ Note RECTANGLE? is needed because TMX is stupid and doesn't have a <rectangle> element.

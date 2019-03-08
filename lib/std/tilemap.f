@@ -9,7 +9,7 @@ depend ramen/lib/stride2d.f
 
 [undefined] tiles [if]
     create tiles #MAXTILES array, 
-    :noname 0 tiles [] #MAXTILES cells erase ; +loadtrig 
+    :noname drop  0 tiles [] #MAXTILES cells erase  tiles vacate ; +loadtrig 
     0 value tba  \ tileset base address
     1024 1024 buffer2d: tilebuf 
 [then]

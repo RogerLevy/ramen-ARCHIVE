@@ -1,7 +1,5 @@
 \ SwiftForth only
 
-ide-loaded on
-
 s" ramen/ide/data/consolab.ttf" 26 ALLEGRO_TTF_NO_KERNING font: consolas
 : keycode  evt ALLEGRO_KEYBOARD_EVENT.keycode @ ;
 : unichar  evt ALLEGRO_KEYBOARD_EVENT.unichar @ ;
@@ -296,11 +294,11 @@ only forth definitions also ideing
 : ide-overlay  0 0 at  unmount  repl @ if shade then  .output  bottom at .cmdline ;
 : rasa  ['] ide-system  is  ?system  ['] ide-overlay  is ?overlay ;
 : -ide  close-personality  HWND btf ;
-: ide  /repl  ['] ?rest catch ?.catch  go  -ide ;
+: ide  rasa  /repl  ['] ?rest catch ?.catch  go  -ide ;
 : /s  S0 @ SP! ;
 : quit  -ide cr quit ;
 : wipe  0 0 cursor xy!  outbuf to >outbuf  outbuf #128 #rows * erase ;
 
-/ide  rasa
+/ide  
 only forth definitions
 marker (empty) 

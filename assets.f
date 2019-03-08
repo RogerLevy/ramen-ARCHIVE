@@ -10,7 +10,9 @@ variable #permanents
 \ "permanent" or "system" assets; not needed by games so reloader is a no-op
 : ?permanent  permanent @ -exit   nip ['] drop swap  1 #permanents +! ;
 
-: register ( reloader-xt unloader-xt asset - ) ?permanent  dup assets push  2! ;
+: register ( reloader-xt unloader-xt asset - )
+    cr ." [Asset] " #tib 2@ swap type
+    ?permanent  dup assets push  2! ;
 
 
 \ structure:  reloader , unloader , filepath ... 
@@ -36,7 +38,9 @@ variable #permanents
 : asset?  srcfile count nip 0<> ;
 
 
-: +loadtrig  ( xt - )  here assets push   ,  ['] drop ,  0 , ;
+: +loadtrig  ( xt - )
+    cr ." [Loadtrig] " #tib 2@ swap type
+    here assets push   ,  ['] drop ,  0 , ;
 
 
 ( Standard synchronous loader )
