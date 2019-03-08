@@ -4,7 +4,7 @@ variable nextid
 0  4 kbytes  class: _role
 ;class
 
-512 cells  dynamic-class: _actor
+512 cells  node-class: _actor
     var role <body
     var id 
     var en <flag

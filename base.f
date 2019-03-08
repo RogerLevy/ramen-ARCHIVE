@@ -48,11 +48,15 @@ include ramen/default.f
 : panic ( - ) step> noop ;
 : void ( - ) panic show> ramenbg ;
 
-: project:  ( -- <path/> ) bl parse slashes project place ;  \ must have trailing slash
+: project:  ( -- <path> )
+    bl parse project place  s" /" project append
+    project count slashes 2drop ;  
+
 : .project  project count type ;
 : rld  ldr count nip -exit ldr count included ;
 : ?project  project count nip ?exit  ldr count -filename project place ;
-: ld
+
+: ld  ( -- <file> )
     bl parse s" .f" strjoin 2>r
         2r@ file-exists not if
             project count 2r> -path strjoin 2>r

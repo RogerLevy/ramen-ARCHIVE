@@ -8,6 +8,7 @@
 \ [x] - Constructors and destructors
 \ [x] - Inspection
 \ [x] - Class extensions
+\ [x] - Pool allocation (problem: objects aren't all nodes!!! what do?? maybe just custom build for actors)
 
 \ TODO:
 \ [x] - CLASS: copy all field instances and add them, plus the offset table
@@ -19,7 +20,6 @@
 
 \ MAYBE, MAYBE NOT:
 \ [ ] - Automatic construction/destruction of embedded objects, such as collections  (downside: slow)
-\ [ ] - Pool allocation (problem: objects aren't all nodes!!! what do?? maybe just custom build for actors)
 
 
 \ depends on structs.f and Venery
@@ -335,7 +335,7 @@ previous definitions
 
 ( Dynamic classes - based on _node )
 
-: dynamic-class:  ( maxsize )
+: node-class:  ( maxsize )
     _node sizeof swap class:
     ['] me/node lastClass class.constructor ! ;
 

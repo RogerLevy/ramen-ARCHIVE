@@ -1,4 +1,5 @@
-\ Standard library set
+( Standard library set )
+
 depend ramen/lib/std/actor.f       cr .( Loaded actors module... )
 depend ramen/lib/std/rangetools.f  cr .( Loaded rangetools module. )
 depend ramen/lib/std/task.f        cr .( Loaded task module. )
@@ -6,7 +7,7 @@ depend ramen/lib/std/cgrid.f       cr .( Loaded collision grid module. )
 depend ramen/lib/std/zsort.f       cr .( Loaded zsort module. )
 depend ramen/lib/std/v2d.f         cr .( Loaded vector2d module. )
 depend ramen/lib/std/kb.f          cr .( Loaded keyboard lex. )
-depend ramen/lib/std/audio1.f      cr .( Loaded audio module. )
+depend ramen/lib/std/audio.f       cr .( Loaded audio module. )
 depend ramen/lib/std/sprites.f     cr .( Loaded sprites module. )
 depend ramen/lib/std/transform.f   cr .( Loaded transformation module. )
 depend ramen/lib/std/tilemap.f     cr .( Loaded tilemap module. )
