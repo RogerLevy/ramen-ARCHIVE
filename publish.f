@@ -20,11 +20,15 @@ defer warm  :make warm ;   \ warm boot: executed potentially multiple times
     al-default-font default-font font.fnt !
     project off
     oscursor off
+    fixed
     ['] initdata catch if s" An asset failed to load." alert then
 ;
 
-: runtime
+: kickoff
     boot cold warm go ;
+    
+: runtime
+    kickoff bye ;
 
 : relify
     dup asset? if srcfile dup count s" data/" search if  rot place  else 3drop then

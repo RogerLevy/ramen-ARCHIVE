@@ -55,7 +55,7 @@ also xmling also tmxing
 \ 2) Rectangular objects with no associated tile
 \ 3) Environment (image) objects where the gid points to a bitmap in the global tileset
 
-: /roles  ( - )  0 roles [] #MAXTILES cells erase ;
+: /roles  ( - )  roles 0array ;
 
 \ : reload-recipes ;
 
@@ -141,6 +141,6 @@ also xmling also tmxing
 : open-map  ( path c - )
     close-tmx  /roles  open-tmx ;
 
-:noname  bitmaps vacate ; +loadtrig
+:noname  drop bitmaps 0array ; +loadtrig
 
 only forth definitions

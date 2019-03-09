@@ -4,6 +4,9 @@ struct %array2d
     %array2d svar array2d.rows
     %array2d svar array2d.pitch
     %array2d svar array2d.data
+    %array2d svar array2d.ref    \ another array2d
+    %array2d svar array2d.col    \ coords in the referenced array2d
+    %array2d svar array2d.row
     
 : 2move  ( src /pitch dest /pitch /bytes #rows - )
   locals| #rows #bytes destpitch dest srcpitch src |
@@ -17,7 +20,8 @@ struct %array2d
     2>r  2over 2+  0 0 2r@ 2clamp  2swap  0 0 2r> 2clamp  2swap 2over 2- ;
     
 : array2d-head,  ( cols rows - )
-    udup  2pfloor 2,  cells ,  here cell+ , ;
+    udup  2pfloor 2,  cells ( pitch ) ,  here 4 cells + ,
+    0 , 0 , 0 , ;
 
 \ by default the data field is set to the adjacent dictionary space
 : array2d,  ( numcols numrows - )
@@ -42,9 +46,22 @@ struct %array2d
 : loc  ( col row array2d - adr )
     (clamp) >r  r@ array2d.pitch @ * swap cells +  r> array2d.data @ + ;
 
-: pitch@  ( array2d - pitch )  array2d.pitch @ ;
+: /section2d  ( section2d - )
+    locals| a |
+    a array2d.col 2@ a array2d.ref @ loc a array2d.data !
+    a array2d.ref @ array2d.pitch @ a array2d.pitch ! ;
 
-\ itteration
+: (section2d)  ( loadtrig - )
+    loadtrig-size + @ /section2d ;
+
+: section2d:  ( array2d col row #cols #rows - <name> )
+    ['] (section2d) +loadtrig  here 0 , 
+    create here swap !  array2d-head,  lastbody array2d.ref 3!
+    lastbody /section2d ; 
+
+: pitch@  ( array2d - pitch )
+    array2d.pitch @ ;
+
 : adr-pitch  ( col row array2d - adr /pitch )
     dup >r loc r> pitch@ ;
 
@@ -62,6 +79,13 @@ struct %array2d
 
 :noname  cr  cells bounds do  i @ h.  cell +loop ;
 : 2d.  >r 0 0 r@ dims 16 16 2min  r> literal some2d  ;
+
+create srcrect  0 , 0 , 0 , 0 ,
+
+: put2d  ( src-array2d dest-array2d col row - )  \ no clipping
+    rot adr-pitch 2>r
+    srcrect xy@ rot adr-pitch 2r> ( adr pitch adr pitch )
+    srcrect wh@ >r cells r> 2move ;
 
 
 \ TABLE2D: ( cols - <name> array2d adr ) 

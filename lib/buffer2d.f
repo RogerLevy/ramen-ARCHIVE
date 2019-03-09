@@ -4,8 +4,10 @@ decimal  \ necessary because tilemaps can be quite large
 : init-buffer2d  ( array2d - )
     >r  r@ array2d.cols 2@ 2i i* cells allocate throw  r> array2d.data ! ;
 fixed
+
 : recreate-buffer2d  ( asset - )
     /assetheader + init-buffer2d ;
+
 : unload-buffer2d
     /assetheader + array2d.data @ free throw ;
 

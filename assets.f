@@ -37,11 +37,12 @@ variable #permanents
 : .assets  ( - ) assets each> cr .asset ;
 : asset?  srcfile count nip 0<> ;
 
+( Loadtrigs )
+3 cells constant loadtrig-size
 
 : +loadtrig  ( xt - )
     cr ." [Loadtrig] " #tib 2@ swap type
     here assets push   ,  ['] drop ,  0 , ;
-
 
 ( Standard synchronous loader )
 :make initdata  assets each> reload ;
